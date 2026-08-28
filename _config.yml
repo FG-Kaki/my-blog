@@ -10,12 +10,26 @@ baseurl: "/my-blog"
 # (title이 메인 큰 글씨로 들어가고, tagline이 설명글로 나옵니다)
 tagline: 배운 것을 정리하고 기록하는 공간
 
-# yat 테마 전용 배너 이미지 설정
-banner_img: /assets/images/banner.jpg
+# 포인트(브랜드) 컬러 - 다크 카키 톤
+# 링크, 태그, 배지 등 강조 요소에 쓰입니다
+brand_color: "#8C8863"
+
+# 코드 블록 상단 언어 배지 컬러 (브랜드 컬러와 통일)
+code_badge:
+  color: "#1b1b14"
+  background_color: "#8C8863"
+
+# yat 테마 배너 설정 (공식 키는 banner_img가 아니라 banner 입니다.
+# 기존 banner_img 키는 테마가 인식하지 못해 배너가 아예 안 뜨고 있었어요 - 여기서 바로잡았습니다)
+banner:
+  image: /assets/images/banner.jpg
+  # 배너 이미지 위에 깔리는 오버레이 톤: 기존의 평평한 검정 대신
+  # 카키가 은은하게 도는 그라데이션으로 부드럽게
+  background: "linear-gradient(180deg, rgba(14,14,14,0.25) 0%, rgba(20,19,13,0.9) 100%)"
 
 plugins:
   - jekyll-remote-theme
   - jekyll-feed
   - jekyll-seo-tag
   - jekyll-sitemap
-  - jekyll-paginate
+  - jekyll-paginate 

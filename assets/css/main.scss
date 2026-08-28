@@ -1,0 +1,85 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+
+// Default theme colors
+$theme-colors: (
+  "coolblack": #090a0b,
+  "spacegrey": #353535,
+  "snowwhite": #ffffff,
+);
+
+// Default brand colors
+$brand-colors: (
+  "orangered": #ff5100,
+  "greatgold": #f2cb05,
+  "greenblue": #389092,
+);
+
+$theme-name: "{{ site.theme_color }}";
+$brand-name: "{{ site.brand_color }}";
+$theme-color: map-get($theme-colors, "snowwhite");
+$brand-color: map-get($brand-colors, "orangered");
+
+@if map-has-key($theme-colors, $theme-name) {
+  $theme-color: map-get($theme-colors, $theme-name);
+} @else if str-index($theme-name, "#") == 1 {
+  $theme-color: {{ site.theme_color | default: '#ffffff' }};
+}
+
+@if map-has-key($brand-colors, $brand-name) {
+  $brand-color: map-get($brand-colors, $brand-name);
+} @else if str-index($brand-name, "#") == 1 {
+  $brand-color: {{ site.brand_color | default: '#ff5100' }};
+}
+
+$content-width: {{ site.content_width | default: '920px' }};
+
+// =====================================================================
+// 여기서부터 커스텀 (원본 테마의 assets/css/main.scss를 오버라이드한 파일)
+// =====================================================================
+
+// 폰트: Pretendard로 교체 + 한글 가독성을 위해 크기/줄간격 살짝 키움
+$base-font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
+  'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+$base-font-size: 16px;
+$base-line-height: 1.75;
+
+@import "yat";
+
+// 다크모드 디테일 커스텀 (브랜드 컬러 = 다크 카키 #8C8863)
+html[data-theme="dark"] {
+  // 코드 블록: head에서 불러오는 gruvbox-dark 하이라이트 테마와
+  // 배경톤을 맞춰서 밝은 회색 배경이 뜨지 않게 함
+  pre {
+    background-color: #282828;
+    border: 1px solid rgba(140, 136, 99, 0.15);
+    border-radius: 6px;
+  }
+
+  // 인라인 코드(문장 속 코드)도 브랜드 카키톤으로 통일
+  *:not(pre) > code {
+    background-color: rgba(140, 136, 99, 0.16);
+    color: #d8d3ae;
+  }
+
+  // 인용구 왼쪽 줄도 브랜드 컬러로
+  blockquote {
+    border-left: 4px solid rgba(140, 136, 99, 0.55);
+  }
+
+  // 글 목록 항목에 은은한 hover 강조
+  .pagination .post-list > li {
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(140, 136, 99, 0.07);
+    }
+  }
+
+  // 텍스트 드래그 선택 색상도 브랜드 톤으로
+  ::selection {
+    background-color: rgba(140, 136, 99, 0.35);
+  }
+}

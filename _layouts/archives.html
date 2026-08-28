@@ -4,15 +4,20 @@ sidebar: archive-list
 ---
 
 {%- if site.posts.size > 0 -%}
+  {%- comment -%}
+    group_by_exp로 연.월별로 묶어서 표시 (사이드바와 동일한 방식/기준)
+  {%- endcomment -%}
+  {% assign grouped = site.posts | group_by_exp: "post", "post.date | date: '%Y.%m'" %}
+  {% assign grouped = grouped | sort: "name" | reverse %}
 
-  {% include functions.html func='log' level='debug' msg='Get datetimes value' %}
-
-  {% assign filter = '%Y.%m' %}
-  {% include functions.html func='get_datetimes' %}
-  {% assign datetimes = return %}
-
-  {% assign keys = datetimes | reverse %}
-  {% assign field = 'date' %}
-  {% include views/segments.html %}
-
+  <div class="page-segments">
+    <ul class="page-segments-list">
+      {% for group in grouped %}
+        <h2 id="h-{{ group.name }}" class="segment-name">{{ group.name }}</h2>
+        {% for item in group.items %}
+          <li>{% include views/post-item.html %}</li>
+        {% endfor %}
+      {% endfor %}
+    </ul>
+  </div>
 {%- endif -%}

@@ -1,10 +1,26 @@
-{%- include functions.html func='log' level='debug' msg='Get datetimes value' -%}
+{%- comment -%}
+  연도.월별 아카이브 사이드바 목록.
+  테마 기본 방식(get_datetimes + where 필터)은 날짜(Time)와 문자열을
+  직접 비교하는 방식이라 "연.월" 같은 형식에서는 카운트가 0으로 나오는
+  문제가 있어서, 같은 표현식으로 묶어주는 group_by_exp로 바꿨습니다.
+{%- endcomment -%}
+{% assign grouped = site.posts | group_by_exp: "post", "post.date | date: '%Y.%m'" %}
+{% assign grouped = grouped | sort: "name" %}
 
-{% assign filter = '%Y.%m' %}
-{% include functions.html func='get_datetimes' %}
-{% assign datetimes = return %}
+<div class="common-list">
+  <ul>
+    <li>
+      <a href="{{ '/index.html' | relative_url }}">
+        All<span>{{ site.posts.size }}</span>
+      </a>
+    </li>
 
-{% assign keys = datetimes %}
-{% assign field = 'date' %}
-{% assign url = '/archives.html' | relative_url %}
-{% include sidebar/common-list.html %}
+    {% for group in grouped %}
+      <li>
+        <a href="{{ '/archives.html' | relative_url }}#h-{{ group.name }}">
+          {{ group.name }} <span>{{ group.items.size }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

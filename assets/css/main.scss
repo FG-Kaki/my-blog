@@ -39,10 +39,12 @@ $content-width: {{ site.content_width | default: '920px' }};
 // 여기서부터 커스텀 (원본 테마의 assets/css/main.scss를 오버라이드한 파일)
 // =====================================================================
 
-// 폰트: Pretendard로 교체 + 한글 가독성을 위해 크기/줄간격 살짝 키움
+// 폰트: Pretendard로 교체. 크기는 원래 그대로(14px) 두고,
+// 굵기만 기본(400)보다 두꺼운 500(Medium)으로 - 가변 폰트라 자유롭게 조절 가능.
+// 줄간격만 한글 가독성을 위해 살짝 키움
 $base-font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
   'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-$base-font-size: 16px;
+$base-font-weight: 500;
 $base-line-height: 1.75;
 
 @import "yat";

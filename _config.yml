@@ -27,6 +27,10 @@ banner:
   # 카키가 은은하게 도는 그라데이션으로 부드럽게
   background: "linear-gradient(180deg, rgba(14,14,14,0.25) 0%, rgba(20,19,13,0.9) 100%)"
 
+# 다크모드로만 쓸 예정이라 방문할 때마다 기본값을 다크로 열리게 설정
+# (우측 상단 토글로 그때그때 라이트로 바꿔볼 수는 있고, 새 탭/새 방문에서는 다시 다크로 리셋됩니다)
+night_mode: "on"
+
 plugins:
   - jekyll-remote-theme
   - jekyll-feed

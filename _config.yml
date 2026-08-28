@@ -1,5 +1,5 @@
 title: Kaki의 학습 노트
-remote_theme: jeffreytse/jekyll-theme-yat@v1.10.0
+remote_theme: jeffreytse/jekyll-theme-yat@v1.8.0
 baseurl: "https://fg-kaki.github.io/my-blog/"
 plugins:
   - jekyll-remote-theme

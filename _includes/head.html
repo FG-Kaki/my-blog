@@ -1,0 +1,25 @@
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c">
+  {%- seo -%}
+  {%- comment -%}
+    원본 테마의 <link rel="icon" href="{{ site.favicon }}"> 줄을 여기서 뺐습니다.
+    sizes/type 힌트가 없는 태그라 브라우저가 이걸 custom-head.html의
+    제대로 된 사이즈별 favicon 태그들보다 먼저 골라버려서 흐릿하게/깨져
+    보이는 원인이었어요. 이제 파비콘 관련 태그는 custom-head.html
+    한 군데에서만 관리합니다.
+  {%- endcomment -%}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
+  <script src="{{ "/assets/js/main.js" | relative_url }}"></script>
+  {%- feed_meta -%}
+  {%- if jekyll.environment == 'production' and site.google_analytics -%}
+  {%- include extensions/google-analytics.html -%}
+  {%- endif -%}
+  {%- include extensions/code-highlight.html -%}
+  {%- include extensions/photo-swipe.html -%}
+  {%- include custom-head.html -%}
+</head>

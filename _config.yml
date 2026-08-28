@@ -31,9 +31,20 @@ banner:
 # (우측 상단 토글로 그때그때 라이트로 바꿔볼 수는 있고, 새 탭/새 방문에서는 다시 다크로 리셋됩니다)
 night_mode: "on"
 
+# 상단 헤더 메뉴에 노출할 페이지 (지정 안 하면 루트의 모든 페이지가
+# 자동으로 다 뜨는데, 그러면 아래 markdown-test.md도 같이 떠버려서 명시적으로 지정)
+header_pages:
+  - archives.html
+  - about.md
+
+# 사이트 빌드에서 제외할 파일 - 테마 문법 테스트용으로 쓰신 파일이라
+# 실제 페이지로는 생성되지 않도록 뺐습니다. 파일 자체는 저장소에 남아있어요.
+exclude:
+  - markdown-test.md
+
 plugins:
   - jekyll-remote-theme
   - jekyll-feed
   - jekyll-seo-tag
   - jekyll-sitemap
-  - jekyll-paginate 
+  - jekyll-paginate

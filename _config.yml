@@ -6,11 +6,12 @@ remote_theme: jeffreytse/jekyll-theme-yat@v1.10.0
 url: "https://fg-kaki.github.io"
 baseurl: "/my-blog"
 
-# 메인 헤더 문구 설정
-header_text: Kaki's Dev Log
-header_subtext: 배운 것을 정리하고 기록하는 공간
+# yat 테마 전용 헤더 문구 설정
+# (title이 메인 큰 글씨로 들어가고, tagline이 설명글로 나옵니다)
+tagline: 배운 것을 정리하고 기록하는 공간
 
-user_banner: /assets/images/banner.jpg
+# yat 테마 전용 배너 이미지 설정
+banner_img: /assets/images/banner.jpg
 
 plugins:
   - jekyll-remote-theme

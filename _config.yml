@@ -1,9 +1,16 @@
-title: Kaki의 학습 노트
+title: Kaki's Dev Log
+description: 버그는 줄이고 배움은 늘려가는 중
 
+# 테마 및 경로 설정
 remote_theme: jeffreytse/jekyll-theme-yat@v1.10.0
-
 url: "https://fg-kaki.github.io"
 baseurl: "/my-blog"
+
+# 메인 헤더 문구 설정
+header_text: Kaki's Dev Log
+header_subtext: 배운 것을 정리하고 기록하는 공간
+
+user_banner: /assets/images/banner.jpg
 
 plugins:
   - jekyll-remote-theme

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "어제 배운 Git 정리"
+title: "8월28일 배운 git 정리"
 date: 2026-08-28
 ---
 

@@ -1,3 +1,8 @@
 title: Kaki의 학습 노트
 remote_theme: StartBootstrap/startbootstrap-clean-blog-jekyll
-baseurl: "https://fg-kaki.github.io/my-blog/"
+
+url: "https://fg-kaki.github.io"
+baseurl: "/my-blog"
+
+plugins:
+  - jekyll-remote-theme

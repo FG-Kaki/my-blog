@@ -49,6 +49,134 @@ $base-line-height: 1.75;
 
 @import "yat";
 
+// 홈 상단 학습 현황 카드 (부트캠프 진행률 + GitHub 위젯)
+// 색상은 라이트 기본값 - 다크모드 색상은 아래 html[data-theme="dark"] 블록에서 덮어씁니다.
+.dev-status-card {
+  margin: 24px 0;
+  padding: 22px 24px;
+  border: 1px solid rgba(140, 136, 99, 0.28);
+  border-radius: 14px;
+  background: rgba(140, 136, 99, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dev-status-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dev-tag {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(140, 136, 99, 0.14);
+  color: #6f6a48;
+}
+
+.dev-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dev-progress-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dev-progress-label {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.dev-progress-numbers {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  white-space: nowrap;
+
+  b {
+    color: #6f6a48;
+    font-weight: 700;
+  }
+}
+
+.dev-progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(140, 136, 99, 0.14);
+  border: 1px solid rgba(140, 136, 99, 0.28);
+  overflow: hidden;
+}
+
+.dev-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8c8863, #6f6a48);
+  transition: width 0.4s ease;
+}
+
+.dev-divider {
+  height: 1px;
+  background: rgba(140, 136, 99, 0.28);
+}
+
+.dev-github {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dev-github-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  span {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.55);
+  }
+
+  a {
+    font-size: 12px;
+    color: #6f6a48;
+  }
+}
+
+.dev-widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dev-widget-card {
+  background: rgba(140, 136, 99, 0.06);
+  border: 1px solid rgba(140, 136, 99, 0.28);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
 // 다크모드 디테일 커스텀 (브랜드 컬러 = 다크 카키 #8C8863)
 html[data-theme="dark"] {
   // 코드 블록: head에서 불러오는 gruvbox-dark 하이라이트 테마와
@@ -83,5 +211,47 @@ html[data-theme="dark"] {
   // 텍스트 드래그 선택 색상도 브랜드 톤으로
   ::selection {
     background-color: rgba(140, 136, 99, 0.35);
+  }
+
+  // 학습 현황 카드: 어두운 배경에 맞춰 채도를 낮추고 글자색을 밝은 카키로
+  .dev-status-card {
+    background: #1a1810;
+    border-color: rgba(140, 136, 99, 0.22);
+  }
+
+  .dev-tag {
+    background: rgba(140, 136, 99, 0.18);
+    color: #d6cea0;
+  }
+
+  .dev-progress-label,
+  .dev-github-head span {
+    color: #a9a58c;
+  }
+
+  .dev-progress-numbers b {
+    color: #d6cea0;
+  }
+
+  .dev-progress-track {
+    background: #211e14;
+    border-color: rgba(140, 136, 99, 0.22);
+  }
+
+  .dev-progress-fill {
+    background: linear-gradient(90deg, #b3ab7c, #d6cea0);
+  }
+
+  .dev-divider {
+    background: rgba(140, 136, 99, 0.22);
+  }
+
+  .dev-github-head a {
+    color: #d6cea0;
+  }
+
+  .dev-widget-card {
+    background: #211e14;
+    border-color: rgba(140, 136, 99, 0.22);
   }
 }

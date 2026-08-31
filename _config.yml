@@ -50,6 +50,10 @@ plugins:
   - jekyll-sitemap
   - jekyll-paginate
 
+# Google Analytics 4 측정 ID
+# 방문자가 브라우저에서 Do Not Track을 켜놨으면 테마가 자동으로 스크립트를 안 돌립니다 (enableDNT 기본값 true)
+google_analytics: G-NZQFPJGCNP
+
 # 댓글 시스템: utterances (GitHub Issue 기반, 무료/광고없음)
 # repo에 Utterances 앱(https://github.com/apps/utterances)을 설치하고
 # 이 repo에 접근 권한을 줘야 실제로 동작합니다. 저장소는 public이어야 합니다.

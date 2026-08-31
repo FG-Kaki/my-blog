@@ -1,0 +1,44 @@
+{% if include.params.article %}
+  {% assign article = include.params.article %}
+{% endif %}
+
+{% if include.params.lang %}
+  {% assign lang = include.params.lang %}
+{% else %}
+  {% assign lang = lang | default: site.lang | default: "en" %}
+{% endif %}
+
+{% if include.params.speed %}
+  {% assign speed = include.params.speed %}
+{% else %}
+  {% assign speed = 160 %}
+{% endif %}
+
+{%- include functions.html func='get_article_words' -%}
+{% assign words = return %}
+
+{% assign total_mins = words
+  | divided_by: speed
+  | at_least: 1 %}
+
+{% assign hours = total_mins | divided_by: 60 %}
+{% assign mins = total_mins | modulo: 60 %}
+
+{%- comment -%}
+  원래는 "About 5 mins"처럼 표기해서, 옆에 붙은 시계 아이콘과 합쳐지면
+  "5분 전에 올라온 글"처럼 상대 시간으로 오해할 수 있었습니다.
+  "읽는 데" 라는 말을 넣어 예상 독서 시간이라는 걸 분명히 했어요.
+{%- endcomment -%}
+{% assign return = "읽는 데 약" %}
+
+{% if hours > 0 %}
+  {% assign return = return
+    | append: " "
+    | append: hours
+    | append: "시간" %}
+{% endif %}
+
+{% assign return = return
+  | append: " "
+  | append: mins
+  | append: "분" %}

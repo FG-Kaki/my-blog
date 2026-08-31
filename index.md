@@ -132,7 +132,7 @@ $ cat progress.txt
         if (i <= script.length) {
           terminal.textContent = script.slice(0, i);
           i++;
-          setTimeout(typeNext, 18);
+          setTimeout(typeNext, 30);
         } else {
           terminal.classList.remove('dev-terminal-typing');
         }

@@ -124,6 +124,21 @@ $base-line-height: 1.75;
   }
 }
 
+// yat 테마 기본 기능: 글 제목 옆에 CSS만으로 "NEW" 배지를 항상 붙이고,
+// 이미 방문한(:visited) 글은 배지 배경/글자색을 페이지 배경색(#0e0e0e)과
+// 똑같이 맞춰서 안 보이게 위장합니다. 문제는 그 위장색이 딱 그 하나의
+// 배경색에만 맞춰져 있어서, 목록 항목에 마우스를 올렸을 때(아래 hover
+// 규칙으로 배경이 살짝 밝아짐) 위장이 깨지면서 안 어울리는 불투명한
+// 검은 사각형으로 튀어나와 보였습니다. 배경 대신 아예 투명하게 만들어서
+// hover든 뭐든 어떤 배경 위에서도 실제로 안 보이게 고칩니다.
+.pagination .post-title a:visited:after,
+.page-segments li a:visited:after,
+.post-related a:visited:after,
+.post .post-related ul a:visited:after {
+  background-color: transparent !important;
+  color: transparent !important;
+}
+
 // 글 목록 스크롤 리빌: 홈 화면 글 목록(.pagination .post-list)과 아카이브
 // 페이지(.page-segments-list) 양쪽 다 대상입니다. 스크립트가 안 도는
 // 상황(JS 꺼짐, IntersectionObserver 미지원)을 대비해 custom-head.html의

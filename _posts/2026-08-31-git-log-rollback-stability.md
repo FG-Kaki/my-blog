@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "삽질 9번과 3번, git log가 알려준 '안정감'의 정체"
-date: 2026-08-31 22:10:00 +0900
+date: 2026-08-31 11:00:00 +0900
 categories: [Git]
 tags: [git, version-control, jekyll, debugging]
 mermaid: true

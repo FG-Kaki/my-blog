@@ -41,6 +41,7 @@ header_pages:
 # 실제 페이지로는 생성되지 않도록 뺐습니다. 파일 자체는 저장소에 남아있어요.
 exclude:
   - markdown-test.md
+  - CLAUDE.md
 
 plugins:
   - jekyll-remote-theme

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "정리해줘로는 안 되는 이유 - 프롬프트를 규격에 맞춰 자르기"
-date: 2026-08-31 15:00:00 +0900
+date: 2026-08-31 10:30:00 +0900
 categories: [AI]
 tags: [prompt-engineering, llm, ai]
 mermaid: true

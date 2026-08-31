@@ -125,18 +125,16 @@ $base-line-height: 1.75;
 }
 
 // yat 테마 기본 기능: 글 제목 옆에 CSS만으로 "NEW" 배지를 항상 붙이고,
-// 이미 방문한(:visited) 글은 배지 배경/글자색을 페이지 배경색(#0e0e0e)과
-// 똑같이 맞춰서 안 보이게 위장합니다. 문제는 그 위장색이 딱 그 하나의
-// 배경색에만 맞춰져 있어서, 목록 항목에 마우스를 올렸을 때(아래 hover
-// 규칙으로 배경이 살짝 밝아짐) 위장이 깨지면서 안 어울리는 불투명한
-// 검은 사각형으로 튀어나와 보였습니다. 배경 대신 아예 투명하게 만들어서
-// hover든 뭐든 어떤 배경 위에서도 실제로 안 보이게 고칩니다.
-.pagination .post-title a:visited:after,
-.page-segments li a:visited:after,
-.post-related a:visited:after,
-.post .post-related ul a:visited:after {
-  background-color: transparent !important;
-  color: transparent !important;
+// 방문(:visited) 여부에 따라 배경색을 페이지 배경과 맞춰 숨기는 방식으로
+// 되어 있었습니다. 그런데 :visited는 최신 브라우저의 프라이버시 보호
+// 정책 때문에 아예 반영이 안 되는 경우가 있어서 - 읽은 글도 계속 "NEW"로
+// 남아있는 원인이 이것으로 보입니다. 조건부로 숨기는 대신 배지 기능
+// 자체를 완전히 제거합니다 (content: none으로 생성 콘텐츠 자체를 없앰).
+.pagination .post-title a:after,
+.page-segments li a:after,
+.post-related a:after,
+.post .post-related ul a:after {
+  content: none !important;
 }
 
 // 글 목록 스크롤 리빌: 홈 화면 글 목록(.pagination .post-list)과 아카이브

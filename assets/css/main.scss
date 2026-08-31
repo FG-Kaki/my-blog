@@ -49,21 +49,103 @@ $base-line-height: 1.75;
 
 @import "yat";
 
-// 머리말 타이핑 효과: 타이핑 중에만 깜빡이는 커서를 붙임
-#dev-typewriter.dev-typewriter-active::after {
-  content: "";
-  display: inline-block;
-  width: 2px;
-  height: 1em;
-  margin-left: 2px;
-  vertical-align: -0.15em;
-  background: currentColor;
-  animation: dev-caret-blink 0.9s steps(1) infinite;
-}
-
+// 홈 상단 터미널 부팅 연출 (라이트/다크 모드와 무관하게 항상 어두운
+// 터미널 배색을 씁니다 - 실제 터미널 창처럼 보이도록 하는 의도적인 선택)
 @keyframes dev-caret-blink {
   50% {
     opacity: 0;
+  }
+}
+
+.dev-terminal {
+  margin: 24px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #14130d;
+  border: 1px solid rgba(140, 136, 99, 0.3);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+}
+
+.dev-terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #1d1b13;
+  border-bottom: 1px solid rgba(140, 136, 99, 0.25);
+}
+
+.dev-terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dev-terminal-dot-red {
+  background: #ff5f56;
+}
+
+.dev-terminal-dot-yellow {
+  background: #ffbd2e;
+}
+
+.dev-terminal-dot-green {
+  background: #27c93f;
+}
+
+.dev-terminal-title {
+  margin-left: 6px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: #8f8a6e;
+}
+
+.dev-terminal-body {
+  margin: 0;
+  padding: 16px 18px 20px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #c9c093;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.dev-terminal-typing::after {
+  content: "▍";
+  margin-left: 1px;
+  animation: dev-caret-blink 0.9s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-terminal-typing::after {
+    animation: none;
+  }
+}
+
+// 글 목록 스크롤 리빌: 홈 화면 글 목록(.pagination .post-list)과 아카이브
+// 페이지(.page-segments-list) 양쪽 다 대상입니다. 스크립트가 안 도는
+// 상황(JS 꺼짐, IntersectionObserver 미지원)을 대비해 custom-head.html의
+// noscript 규칙에서 항상 보이도록 강제 처리합니다.
+.pagination .post-list > li,
+.page-segments-list > li {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+
+  &.dev-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pagination .post-list > li,
+  .page-segments-list > li {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 

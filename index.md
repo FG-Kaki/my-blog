@@ -8,8 +8,19 @@ subheading: 배운 것을 정리하고 기록하는 공간
 sidebar: archive-list
 ---
 
-버그는 하루 만에 안 없어지지만, 기록은 쌓입니다.
-{: #dev-typewriter }
+<div class="dev-terminal">
+  <div class="dev-terminal-bar">
+    <span class="dev-terminal-dot dev-terminal-dot-red"></span>
+    <span class="dev-terminal-dot dev-terminal-dot-yellow"></span>
+    <span class="dev-terminal-dot dev-terminal-dot-green"></span>
+    <span class="dev-terminal-title">kaki@bootcamp: ~/my-blog</span>
+  </div>
+  <pre class="dev-terminal-body" id="dev-terminal-body">$ git log -1 --oneline
+006일차  버그는 하루 만에 안 없어지지만, 기록은 쌓입니다.
+
+$ cat progress.txt
+6 / 176일차 진행 중</pre>
+</div>
 
 <div class="dev-status-card">
   <div class="dev-status-tags">
@@ -73,7 +84,12 @@ sidebar: archive-list
   if (day < 1) day = 1;
   if (day > BOOTCAMP_TOTAL_DAYS) day = BOOTCAMP_TOTAL_DAYS;
   var percent = Math.round((day / BOOTCAMP_TOTAL_DAYS) * 100);
+  var dayStr = ('000' + day).slice(-3);
 
+  var prefersReduced = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 진행률 카드 숫자 채우기
   var dayEl = document.getElementById('bootcamp-day');
   var percentEl = document.getElementById('bootcamp-percent');
   var fillEl = document.getElementById('bootcamp-progress-fill');
@@ -91,39 +107,37 @@ sidebar: archive-list
       });
     });
   }
-})();
-</script>
 
-<!--
-  머리말 한 줄을 타자기처럼 한 글자씩 보여주는 1회성 연출입니다. HTML에는
-  완성된 문장을 그대로 두고(자바스크립트 꺼져 있어도, 검색엔진 크롤러도
-  문장을 그대로 읽습니다) 로드 시점에만 지웠다가 다시 타이핑하는 방식이라
-  텍스트를 이중으로 관리할 필요가 없습니다. prefers-reduced-motion을
-  켜둔 방문자에게는 애니메이션 없이 원문을 그대로 둡니다.
--->
-<script>
-(function () {
-  var el = document.getElementById('dev-typewriter');
-  if (!el) return;
+  // 터미널 부팅 연출: HTML의 <pre>엔 이미 완성된 텍스트가 하드코딩되어
+  // 있어서(자바스크립트가 꺼져 있어도, 크롤러가 봐도 정상적인 문장) 여기선
+  // 그 자리를 오늘 계산한 실제 일차/진행률로 다시 채운 다음, 한 글자씩
+  // 타이핑해서 보여줍니다. reduced-motion이면 타이핑 없이 값만 갱신합니다.
+  var terminal = document.getElementById('dev-terminal-body');
+  if (terminal) {
+    var script = [
+      '$ git log -1 --oneline',
+      dayStr + '일차  버그는 하루 만에 안 없어지지만, 기록은 쌓입니다.',
+      '',
+      '$ cat progress.txt',
+      day + ' / ' + BOOTCAMP_TOTAL_DAYS + '일차 진행 중'
+    ].join('\n');
 
-  var prefersReduced = window.matchMedia &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReduced) return;
-
-  var text = el.textContent;
-  el.textContent = '';
-  el.classList.add('dev-typewriter-active');
-
-  var i = 0;
-  function typeNext() {
-    if (i <= text.length) {
-      el.textContent = text.slice(0, i);
-      i++;
-      setTimeout(typeNext, 45);
+    if (prefersReduced) {
+      terminal.textContent = script;
     } else {
-      el.classList.remove('dev-typewriter-active');
+      terminal.textContent = '';
+      terminal.classList.add('dev-terminal-typing');
+      var i = 0;
+      (function typeNext() {
+        if (i <= script.length) {
+          terminal.textContent = script.slice(0, i);
+          i++;
+          setTimeout(typeNext, 18);
+        } else {
+          terminal.classList.remove('dev-terminal-typing');
+        }
+      })();
     }
   }
-  typeNext();
 })();
 </script>

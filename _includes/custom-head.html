@@ -36,3 +36,51 @@
      DOMContentLoaded에서 모든 pre code 블록의 class를 바꿔버리기 전에 먼저 처리되어야
      해서, head.html에서 code-highlight.html보다 앞서 별도로 include하고 있습니다. -->
 
+<!-- 글 목록 스크롤 리빌 폴백: 자바스크립트가 꺼져 있으면 아래 스크립트가
+     아예 안 돌아서 main.scss의 opacity:0 기본값이 그대로 남아 글 목록이
+     영영 안 보이게 됩니다. 그런 경우엔 이 규칙으로 즉시 다 보이게 강제합니다. -->
+<noscript>
+<style>
+  .pagination .post-list > li,
+  .page-segments-list > li {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+</style>
+</noscript>
+
+<!-- 글 목록 스크롤 리빌: 방문자가 스크롤해서 글 목록에 다가가면 하나씩
+     살짝 떠오르며 나타납니다. 홈 화면의 .pagination .post-list와 아카이브
+     페이지의 .page-segments-list 양쪽 다 대상입니다. -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var items = document.querySelectorAll('.pagination .post-list > li, .page-segments-list > li');
+  if (!items.length) return;
+
+  var prefersReduced = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (prefersReduced || !('IntersectionObserver' in window)) {
+    items.forEach(function (el) { el.classList.add('dev-revealed'); });
+    return;
+  }
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('dev-revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+  items.forEach(function (el, i) {
+    // 화면에 한꺼번에 여러 개가 들어오는 경우(예: 페이지 새로고침) 순서대로
+    // 살짝 시차를 두고 나타나도록. 너무 아래쪽 항목까지 딜레이가 쌓이지
+    // 않게 8개 분량에서 상한을 둡니다.
+    el.style.transitionDelay = (Math.min(i, 8) * 60) + 'ms';
+    observer.observe(el);
+  });
+});
+</script>
+

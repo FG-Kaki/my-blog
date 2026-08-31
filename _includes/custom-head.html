@@ -127,8 +127,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var height = 130;
   var BAND_BELOW = 56; // CSS의 bottom: -56px과 맞춤
   var BORDER_Y = height - BAND_BELOW; // 캔버스 로컬 좌표에서 실제 배너 하단 경계선 위치
-  var OFFSET_START = 34; // 왼쪽 끝(x=0)에서 경계선 위로 띄우는 기본 높이(px)
-  var OFFSET_END = 54; // 오른쪽 끝(x=width)에서 띄우는 높이(px) - 왼쪽보다 높음(우상향)
+  var OFFSET_START = 5; // 왼쪽 끝(x=0)에서 경계선 위로 띄우는 기본 높이(px) - 확인용으로 크게 벌려둠
+  var OFFSET_END = 95; // 오른쪽 끝(x=width)에서 띄우는 높이(px) - 확인용으로 크게 벌려둠 (캔버스 높이 130 안에서 최대한)
 
   // banner.jpg는 좌하단에서 우상단으로 금빛 보케가 흐르는 구도입니다.
   // 입자 밀도나 낙하 방향은 건드리지 않고(둘 다 균등/대칭 유지), 입자가

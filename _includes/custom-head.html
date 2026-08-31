@@ -26,3 +26,26 @@
 <link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32x32.png' | relative_url }}">
 <link rel="apple-touch-icon" sizes="180x180" href="{{ '/assets/images/apple-touch-icon.png' | relative_url }}">
 <meta name="theme-color" content="#0e0e0e">
+
+{% if page.mermaid %}
+<!-- Mermaid: 마크다운의 ```mermaid 코드 블록을 실제 다이어그램으로 그려줍니다.
+     kramdown/rouge가 코드를 <div class="language-mermaid">...</div> 로 감싸두는데,
+     그 안의 텍스트만 뽑아 mermaid용 <div class="mermaid">로 바꿔치기한 뒤 렌더링합니다.
+     front matter에 mermaid: true가 있는 글에서만 로드합니다. -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('div.language-mermaid').forEach(function (block) {
+      var code = block.querySelector('code');
+      if (!code) return;
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = code.textContent;
+      block.replaceWith(div);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+    }
+  });
+</script>
+{% endif %}

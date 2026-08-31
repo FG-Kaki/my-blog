@@ -162,6 +162,16 @@ $base-line-height: 1.75;
   }
 }
 
+// 배너의 큰 제목(Kaki's Dev Log)만 모노스페이스 굵은 글씨로 -
+// 본문(Pretendard)은 그대로 두고, 이미 터미널 카드/진행률 숫자에 쓰고
+// 있는 JetBrains Mono를 헤드라인에도 재사용해서 "개발자 블로그" 톤을
+// 제목에서부터 확실하게 잡습니다.
+.page-banner-heading {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
 // 홈 상단 학습 현황 카드 (부트캠프 진행률 + GitHub 위젯)
 // 색상은 라이트 기본값 - 다크모드 색상은 아래 html[data-theme="dark"] 블록에서 덮어씁니다.
 .dev-status-card {

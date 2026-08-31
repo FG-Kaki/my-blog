@@ -43,6 +43,19 @@ exclude:
   - markdown-test.md
   - CLAUDE.md
 
+# 글마다 image front matter를 안 넣어도 카톡/슬랙 등에 공유할 때
+# 기본 썸네일(og:image)이 뜨도록 모든 포스트에 기본 이미지를 깔아둡니다.
+# jekyll-seo-tag는 image를 페이지별로만 읽고 사이트 전체 기본값을
+# 자동으로 채워주진 않아서, Jekyll 자체의 front matter defaults 기능으로
+# 처리합니다. 특정 글에 더 어울리는 이미지가 있으면 그 글 front matter에
+# image: /assets/images/원하는파일.jpg 를 넣으면 이 기본값을 덮어씁니다.
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      image: /assets/images/og-image.jpg
+
 plugins:
   - jekyll-remote-theme
   - jekyll-feed

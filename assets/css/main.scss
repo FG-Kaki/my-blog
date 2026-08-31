@@ -173,6 +173,12 @@ $base-line-height: 1.75;
   }
 }
 
+// 헤더 GitHub 아이콘 (about.md에만 있던 연락처를 헤더에서도 바로 노출)
+.site-header-github .fa-github {
+  font-size: 18px;
+  vertical-align: middle;
+}
+
 // 다크모드 디테일 커스텀 (브랜드 컬러 = 다크 카키 #8C8863)
 html[data-theme="dark"] {
   // 코드 블록: head에서 불러오는 gruvbox-dark 하이라이트 테마와

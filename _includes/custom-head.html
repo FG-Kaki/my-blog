@@ -125,6 +125,17 @@ document.addEventListener('DOMContentLoaded', function () {
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
   var width = 0;
   var height = 130;
+  var BAND_BELOW = 56; // CSS의 bottom: -56px과 맞춤
+  var BORDER_Y = height - BAND_BELOW; // 캔버스 로컬 좌표에서 실제 배너 하단 경계선 위치
+  var DIAGONAL_RISE = 34; // 오른쪽으로 갈수록 경계선을 이만큼 위로 들어올려서 대각선 느낌을 냄
+
+  // banner.jpg는 좌하단에서 우상단으로 금빛 보케가 흐르는 구도입니다.
+  // 그래서 왼쪽일수록 "경계선에 이미 다다른" 입자가 많고(더 많이/더 낮게
+  // 태어남), 오른쪽으로 갈수록 아직 대각선이 위쪽에 있어서 경계선까지
+  // 못 내려온 것처럼 입자 밀도와 태어나는 위치를 함께 기울입니다.
+  function localBorderAt(x) {
+    return BORDER_Y - (x / width) * DIAGONAL_RISE;
+  }
 
   function resize() {
     width = banner.offsetWidth;
@@ -138,19 +149,23 @@ document.addEventListener('DOMContentLoaded', function () {
     if (particles.length > target) {
       particles.length = target;
     } else {
-      while (particles.length < target) particles.push(spawn());
+      while (particles.length < target) particles.push(spawn(true));
     }
   }
 
-  function spawn(atTop) {
+  function spawn(scattered) {
+    // Math.random()에 지수를 줘서 왼쪽(x가 작은 쪽)에 더 많이 몰리게 함
+    var x = width * Math.pow(Math.random(), 1.8);
+    var border = localBorderAt(x);
     return {
-      x: Math.random() * width,
-      // 경계선(y=56, .page-banner 바로 아랫부분) 근처에서 태어나서
-      // 아래로 떨어지도록 시작 y를 그 위아래로 흩어놓음
-      y: atTop === false ? 56 + Math.random() * 20 : Math.random() * height,
+      x: x,
+      // 리스폰(scattered=false)은 대각선 경계선 바로 근처에서 태어나
+      // 흘러내리게 하고, 최초 채우기(scattered=true)만 밴드 전체에
+      // 흩어서 시작 화면이 비어 보이지 않게 함
+      y: scattered ? Math.random() * height : border + Math.random() * 20,
       r: 0.6 + Math.random() * 1.8,
       vy: 0.25 + Math.random() * 0.55,
-      vx: (Math.random() - 0.5) * 0.3,
+      vx: -0.15 + (Math.random() - 0.5) * 0.3, // 살짝 왼쪽으로 - 대각선의 낙하 방향
       sway: Math.random() * Math.PI * 2,
       swaySpeed: 0.01 + Math.random() * 0.02,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
@@ -166,15 +181,16 @@ document.addEventListener('DOMContentLoaded', function () {
       p.sway += p.swaySpeed;
       p.x += p.vx + Math.sin(p.sway) * 0.15;
 
-      // 경계선 아래로 갈수록 서서히 옅어지다가 사라짐 -> 흘러내리다 흩어지는 느낌
-      var fade = p.y < 56 ? 1 : Math.max(0, 1 - (p.y - 56) / (height - 56));
+      // 대각선 경계선 아래로 갈수록 서서히 옅어지다가 사라짐
+      var border = localBorderAt(p.x);
+      var fade = p.y < border ? 1 : Math.max(0, 1 - (p.y - border) / (height - border));
       ctx.globalAlpha = p.alpha * fade;
       ctx.fillStyle = p.color;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fill();
 
-      if (p.y > height || fade <= 0.02) {
+      if (p.y > height || p.x < -10 || fade <= 0.02) {
         particles[i] = spawn(false);
       }
     }

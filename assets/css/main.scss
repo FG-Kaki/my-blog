@@ -49,6 +49,24 @@ $base-line-height: 1.75;
 
 @import "yat";
 
+// 머리말 타이핑 효과: 타이핑 중에만 깜빡이는 커서를 붙임
+#dev-typewriter.dev-typewriter-active::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  animation: dev-caret-blink 0.9s steps(1) infinite;
+}
+
+@keyframes dev-caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
 // 홈 상단 학습 현황 카드 (부트캠프 진행률 + GitHub 위젯)
 // 색상은 라이트 기본값 - 다크모드 색상은 아래 html[data-theme="dark"] 블록에서 덮어씁니다.
 .dev-status-card {
@@ -75,6 +93,12 @@ $base-line-height: 1.75;
   border-radius: 999px;
   background: rgba(140, 136, 99, 0.14);
   color: #6f6a48;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(140, 136, 99, 0.25);
+  }
 }
 
 .dev-progress {
@@ -166,6 +190,12 @@ $base-line-height: 1.75;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: rgba(140, 136, 99, 0.55);
+  }
 
   img {
     max-width: 100%;
@@ -177,6 +207,23 @@ $base-line-height: 1.75;
 .site-header-github .fa-github {
   font-size: 18px;
   vertical-align: middle;
+  display: inline-block;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.site-header-github:hover .fa-github {
+  transform: scale(1.15);
+  color: #8c8863;
+}
+
+// 마이크로 인터랙션/타이핑 애니메이션 감속 요청 시 전부 즉시 전환으로
+@media (prefers-reduced-motion: reduce) {
+  .dev-tag,
+  .dev-widget-card,
+  .site-header-github .fa-github,
+  .dev-progress-fill {
+    transition: none;
+  }
 }
 
 // 다크모드 디테일 커스텀 (브랜드 컬러 = 다크 카키 #8C8863)

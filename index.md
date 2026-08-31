@@ -9,6 +9,7 @@ sidebar: archive-list
 ---
 
 버그는 하루 만에 안 없어지지만, 기록은 쌓입니다.
+{: #dev-typewriter }
 
 <div class="dev-status-card">
   <div class="dev-status-tags">
@@ -78,6 +79,51 @@ sidebar: archive-list
   var fillEl = document.getElementById('bootcamp-progress-fill');
   if (dayEl) dayEl.textContent = day;
   if (percentEl) percentEl.textContent = percent;
-  if (fillEl) fillEl.style.width = percent + '%';
+
+  // 진행률 바가 0%로 이미 렌더링된 프레임을 한 번 그린 뒤에 목표 값으로
+  // 바꿔야 CSS transition이 실제로 애니메이션으로 보입니다. 이 스크립트가
+  // 실행되자마자 바로 폭을 바꾸면 브라우저가 중간 프레임을 그릴 새 없이
+  // 최종값으로 바로 그려버려서 애니메이션이 생략된 것처럼 보였습니다.
+  if (fillEl) {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        fillEl.style.width = percent + '%';
+      });
+    });
+  }
+})();
+</script>
+
+<!--
+  머리말 한 줄을 타자기처럼 한 글자씩 보여주는 1회성 연출입니다. HTML에는
+  완성된 문장을 그대로 두고(자바스크립트 꺼져 있어도, 검색엔진 크롤러도
+  문장을 그대로 읽습니다) 로드 시점에만 지웠다가 다시 타이핑하는 방식이라
+  텍스트를 이중으로 관리할 필요가 없습니다. prefers-reduced-motion을
+  켜둔 방문자에게는 애니메이션 없이 원문을 그대로 둡니다.
+-->
+<script>
+(function () {
+  var el = document.getElementById('dev-typewriter');
+  if (!el) return;
+
+  var prefersReduced = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;
+
+  var text = el.textContent;
+  el.textContent = '';
+  el.classList.add('dev-typewriter-active');
+
+  var i = 0;
+  function typeNext() {
+    if (i <= text.length) {
+      el.textContent = text.slice(0, i);
+      i++;
+      setTimeout(typeNext, 45);
+    } else {
+      el.classList.remove('dev-typewriter-active');
+    }
+  }
+  typeNext();
 })();
 </script>

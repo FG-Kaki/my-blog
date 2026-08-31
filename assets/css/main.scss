@@ -162,14 +162,29 @@ $base-line-height: 1.75;
   }
 }
 
-// 배너의 큰 제목(Kaki's Dev Log)만 모노스페이스 굵은 글씨로 -
-// 본문(Pretendard)은 그대로 두고, 이미 터미널 카드/진행률 숫자에 쓰고
-// 있는 JetBrains Mono를 헤드라인에도 재사용해서 "개발자 블로그" 톤을
-// 제목에서부터 확실하게 잡습니다.
+// 배너의 큰 제목(Kaki's Dev Log)만 세리프 폰트로 - 본문(Pretendard)은
+// 그대로 두고, 세리프 특유의 차분하고 세련된 느낌 + 금색 그라데이션 +
+// 얇은 언더라인으로 배너 사진의 금빛 보케와 어울리게 꾸밉니다.
 .page-banner-heading {
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: "Fraunces", Georgia, "Noto Serif KR", serif;
+  font-optical-sizing: auto;
+  // 테마 기본 규칙(.page-banner .page-banner-inner>*:first-child>:nth-child(1))이
+  // 이 두 속성을 더 구체적인 선택자로 이미 정하고 있어서(-1px, normal),
+  // !important 없이는 세리프 폰트에 안 맞는 값이 계속 이깁니다.
+  font-weight: 500 !important;
+  font-style: normal;
+  letter-spacing: 0.005em !important;
+  display: inline-block;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(217, 201, 143, 0.45);
+
+  // 그라데이션 텍스트를 지원 안 하는 브라우저를 위한 대비 색상 -
+  // 아래 background-clip이 먹으면 이 color는 안 보이고 그라데이션으로 대체됨
+  color: #d9c98f;
+  background: linear-gradient(100deg, #efe0ad 0%, #d9c98f 45%, #8c8863 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 // 홈 상단 학습 현황 카드 (부트캠프 진행률 + GitHub 위젯)

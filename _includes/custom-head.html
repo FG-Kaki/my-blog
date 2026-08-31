@@ -22,14 +22,18 @@
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/gruvbox-dark.min.css">
 
-<!-- 파비콘 (브랜드 컬러 다크 카키 배경 + K 모노그램)
+<!-- 파비콘 (icon2.png 기반)
      탭 아이콘용으로는 딱 두 개만 남겼습니다. android-chrome 192/512는
      원래 웹앱 매니페스트에서 참조하는 용도라, 매니페스트 없이 icon
      link로만 여러 개 던져두면 브라우저가 어떤 걸 탭 아이콘으로 쓸지
-     고르는 과정에서 뒤늦게 무효화되는 경우가 있어 정리했어요. -->
-<link rel="icon" type="image/x-icon" href="{{ '/favicon.ico' | relative_url }}">
-<link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32x32.png' | relative_url }}">
-<link rel="apple-touch-icon" sizes="180x180" href="{{ '/assets/images/apple-touch-icon.png' | relative_url }}">
+     고르는 과정에서 뒤늦게 무효화되는 경우가 있어 정리했어요.
+     끝에 붙은 ?v=2는 캐시 버스팅용입니다 - 크롬이 파비콘을 URL 단위로
+     꽤 오래 캐싱해서, 파일 내용을 바꿔도 경로가 같으면 이전 파비콘을
+     계속 들고 있는 경우가 있었습니다. 앞으로 파비콘 이미지를 또 바꾸면
+     이 숫자만 올려주면 됩니다. -->
+<link rel="icon" type="image/x-icon" href="{{ '/favicon.ico' | relative_url }}?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ '/assets/images/favicon-32x32.png' | relative_url }}?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ '/assets/images/apple-touch-icon.png' | relative_url }}?v=2">
 <meta name="theme-color" content="#0e0e0e">
 
 <!-- mermaid 스크립트는 extensions/mermaid.html로 옮겼습니다. code-highlight.html이

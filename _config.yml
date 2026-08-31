@@ -49,3 +49,13 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
   - jekyll-paginate
+
+# 댓글 시스템: utterances (GitHub Issue 기반, 무료/광고없음)
+# repo에 Utterances 앱(https://github.com/apps/utterances)을 설치하고
+# 이 repo에 접근 권한을 줘야 실제로 동작합니다. 저장소는 public이어야 합니다.
+utterances:
+  repo: "FG-Kaki/my-blog"
+  issue_term: "pathname" # 글 경로 기준으로 이슈 매칭 (제목 바뀌어도 안 끊김)
+  label: "comment" # 자동 생성되는 이슈에 붙는 라벨
+  theme: "github-dark" # follow_site_theme가 꺼졌을 때 쓰일 기본 테마
+  follow_site_theme: true # 사이트 다크/라이트 토글에 댓글창도 같이 따라가게

@@ -153,13 +153,9 @@ $base-line-height: 1.75;
 }
 
 .dev-widgets {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .dev-widget-card {

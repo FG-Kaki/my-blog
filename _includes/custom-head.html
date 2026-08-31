@@ -27,29 +27,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="{{ '/assets/images/apple-touch-icon.png' | relative_url }}">
 <meta name="theme-color" content="#0e0e0e">
 
-{% if page.mermaid %}
-<!-- Mermaid: 마크다운의 ```mermaid 코드 블록을 실제 다이어그램으로 그려줍니다.
-     이 사이트의 kramdown은 rouge 하이라이터용 <div class="language-mermaid"> 래퍼 없이
-     <pre><code class="language-mermaid">...</code></pre> 형태로만 출력합니다 (div 래퍼가
-     있다는 가정으로 짰던 이전 셀렉터가 이걸 못 찾아서 렌더링이 전혀 안 됐던 원인이었습니다).
-     그래서 code.language-mermaid를 직접 찾아 처리합니다. -->
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('code.language-mermaid').forEach(function (code) {
-      var host = code.closest('div.language-mermaid') || code.closest('pre') || code;
-      var div = document.createElement('div');
-      div.className = 'mermaid';
-      div.textContent = code.textContent;
-      host.replaceWith(div);
-    });
-    if (window.mermaid) {
-      // startOnLoad를 쓰지 않고 직접 run()을 호출합니다: mermaid.js 자체의
-      // 자동 스캔이 위에서 .mermaid로 바꿔치기하기 전 시점에 먼저 실행되면서
-      // 아무것도 못 찾고 끝나버리는 타이밍 문제를 피하기 위해서입니다.
-      mermaid.initialize({ startOnLoad: false, theme: 'dark' });
-      mermaid.run();
-    }
-  });
-</script>
-{% endif %}
+<!-- mermaid 스크립트는 extensions/mermaid.html로 옮겼습니다. code-highlight.html이
+     DOMContentLoaded에서 모든 pre code 블록의 class를 바꿔버리기 전에 먼저 처리되어야
+     해서, head.html에서 code-highlight.html보다 앞서 별도로 include하고 있습니다. -->
+

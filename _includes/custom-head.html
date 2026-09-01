@@ -219,10 +219,11 @@ document.addEventListener('DOMContentLoaded', function () {
 <!-- 배경음악 위젯: 우측 하단 원형 버튼으로 재생/정지를 토글합니다. 평소엔
      버튼만 보이고, 데스크톱은 마우스 오버, 모바일은 롱프레스(길게 누르기)로
      버튼 위에 세로 볼륨 슬라이더가 펼쳐집니다. 정적 사이트라 페이지를
-     넘어가면 오디오가 리셋되므로, 재생 여부·볼륨·재생 위치를 localStorage에
-     저장해뒀다가 다음 페이지 로드 시 이어서 재생을 시도합니다. 단, 브라우저
-     자동재생 정책상 상호작용 없이 소리와 함께 자동재생되는 것은 항상
-     보장되지 않으며, 차단되면 조용히 정지 상태로 남습니다. -->
+     넘어가면 오디오가 리셋되는데, 자동재생은 시도하지 않고(브라우저 정책상
+     어차피 대부분 차단되기도 하고, 사용자가 원치 않을 때 갑자기 소리가
+     나는 것도 피하기 위해) 매번 버튼을 눌러야만 재생됩니다. 볼륨과 마지막
+     재생 위치만 localStorage에 저장해뒀다가, 버튼을 눌렀을 때 이어서
+     재생되도록 합니다. -->
 <style>
   .bgm-widget {
     position: fixed;
@@ -333,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var audio = new Audio(AUDIO_SRC);
   audio.loop = true;
   audio.volume = volume;
-  audio.preload = state.playing ? 'auto' : 'none';
+  audio.preload = 'none';
 
   var widget = document.createElement('div');
   widget.className = 'bgm-widget';
@@ -342,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '<input type="range" min="0" max="1" step="0.01" aria-label="배경음악 볼륨">' +
     '</div>' +
     '<button type="button" class="bgm-toggle" aria-label="배경음악 재생/정지" aria-pressed="false">' +
-      '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
         '<path d="M9 18V5l12-2v13"></path>' +
         '<circle cx="6" cy="18" r="3"></circle>' +
         '<circle cx="18" cy="16" r="3"></circle>' +
@@ -357,20 +358,15 @@ document.addEventListener('DOMContentLoaded', function () {
   function setPlaying(playing) {
     widget.classList.toggle('bgm-playing', playing);
     toggleBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
-    saveState({ playing: playing });
-  }
-
-  function play() {
-    audio.play().then(function () {
-      setPlaying(true);
-    }).catch(function () {
-      setPlaying(false);
-    });
   }
 
   toggleBtn.addEventListener('click', function () {
     if (audio.paused) {
-      play();
+      audio.play().then(function () {
+        setPlaying(true);
+      }).catch(function () {
+        setPlaying(false);
+      });
     } else {
       audio.pause();
       setPlaying(false);
@@ -408,16 +404,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // 재생 위치 주기적 저장 (탭을 닫거나 다른 글로 이동할 때를 대비)
-  var saveTimer = setInterval(function () {
-    if (!audio.paused) {
-      saveState({ time: audio.currentTime });
-    }
-  }, 3000);
-
+  // 페이지를 떠날 때 마지막 재생 위치를 저장해, 다음 페이지에서 버튼을
+  // 눌렀을 때 이어서 재생되도록 함 (자동재생은 하지 않음)
   window.addEventListener('pagehide', function () {
-    clearInterval(saveTimer);
-    saveState({ time: audio.currentTime, playing: !audio.paused });
+    saveState({ time: audio.currentTime });
   });
 
   audio.addEventListener('loadedmetadata', function () {
@@ -425,14 +415,6 @@ document.addEventListener('DOMContentLoaded', function () {
       try { audio.currentTime = state.time; } catch (e) {}
     }
   });
-
-  if (state.playing) {
-    audio.addEventListener('canplay', function onCanPlay() {
-      audio.removeEventListener('canplay', onCanPlay);
-      play();
-    });
-    audio.load();
-  }
 });
 </script>
 

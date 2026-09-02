@@ -418,17 +418,40 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<!-- 이스터에그: 언더테일의 "성가신 개(Annoying Dog)" 오마주. 배너 제목을
-     3초 안에 5번 연속 클릭하면 평면 스프라이트 강아지가 배너 구석에 몰래
-     나타납니다. 강아지를 클릭하면 복슬복슬한 "진짜 모습"(brown.png)으로
-     변신하며 짖고 짧은 대사창을 띄운 뒤 사라집니다. 클릭하지 않고 방치해도
-     6초 뒤 스스로 사라집니다. 배너가 없는 페이지에서는 클릭할 대상 자체가
-     없으므로 자연히 비활성 상태입니다. -->
+<!-- 이스터에그: 언더테일의 "성가신 개(Annoying Dog)" 오마주. 스프라이트는
+     brown.png 하나만 씁니다(체커보드 배경이 구워져 있던 걸 투명 처리했습니다).
+
+     정답을 바로 알려주는 대신 두 가지 단서만 흘려둡니다.
+     1) 콘솔에 남기는 수상한 메모 - 개발자 도구를 열어보는 사람에게만 보임
+     2) 배너 제목 옆에 아주 희미하게 떠 있는 발자국 - 제목에 마우스를 올리면
+        살짝 또렷해져서 "여기가 수상하다"는 촉을 줌
+     실제 정답(제목 3초 안에 5회 연속 클릭)은 어디에도 문장으로 적어두지
+     않고, 위 두 단서를 조합해 추리해야 나옵니다.
+
+     클릭에 성공하면 언더테일 텍스트박스처럼 대사가 한 글자씩 타이핑되며
+     두 줄이 순서대로 나타나고, 짖는 소리와 함께 배너 전체가 짧게
+     "히트스톱"처럼 흔들립니다. 이후 강아지는 옆으로 휙 뛰쳐나가듯
+     사라집니다. 클릭하지 않고 방치해도 6초 뒤 같은 방식으로 떠납니다.
+     배너가 없는 페이지에서는 클릭할 대상 자체가 없어 자연히 비활성입니다. -->
 <style>
+  .dev-dog-clue {
+    display: inline-block;
+    margin-left: 8px;
+    opacity: 0.15;
+    transition: opacity 0.3s ease;
+    user-select: none;
+  }
+
   .dev-dog-wrap {
     position: absolute;
     bottom: 8px;
     z-index: 5;
+    transition: transform 0.25s ease-in, opacity 0.25s ease-in;
+  }
+
+  .dev-dog-wrap.dev-dog-exit {
+    transform: translateX(60px) translateY(6px) scale(0.85);
+    opacity: 0;
   }
 
   .dev-dog {
@@ -442,25 +465,30 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   .dev-dog.dev-dog-caught {
-    animation: dev-dog-shake 0.4s ease-in-out;
+    animation: dev-dog-bounce 0.4s ease-in-out;
   }
 
-  .dev-dog-bubble {
+  .dev-dog-textbox {
     position: absolute;
     bottom: 100%;
     left: 50%;
-    transform: translateX(-50%) translateY(-8px);
+    transform: translateX(-50%) translateY(-14px);
+    min-width: 200px;
+    max-width: 240px;
     background: #0e0e0e;
     color: #efe0ad;
     border: 2px solid #efe0ad;
     border-radius: 4px;
-    padding: 6px 10px;
+    padding: 8px 10px;
     font-family: "JetBrains Mono", monospace;
     font-size: 12px;
-    white-space: nowrap;
+    line-height: 1.6;
+    white-space: normal;
     pointer-events: none;
-    opacity: 0;
-    animation: dev-dog-bubble-in 0.2s ease-out 0.35s forwards;
+  }
+
+  .dev-dog-textbox div + div {
+    margin-top: 2px;
   }
 
   @keyframes dev-dog-pop {
@@ -468,26 +496,33 @@ document.addEventListener('DOMContentLoaded', function () {
     to { transform: scale(1); }
   }
 
-  @keyframes dev-dog-shake {
-    0%, 100% { transform: scale(1) rotate(0deg); }
-    25% { transform: scale(1.1) rotate(-6deg); }
-    75% { transform: scale(1.1) rotate(6deg); }
+  @keyframes dev-dog-bounce {
+    0%, 100% { transform: scale(1) translateY(0); }
+    30% { transform: scale(1.08) translateY(-6px); }
+    60% { transform: scale(1.04) translateY(0); }
   }
 
-  @keyframes dev-dog-bubble-in {
-    to { opacity: 1; transform: translateX(-50%) translateY(-14px); }
+  @keyframes dev-banner-hitshake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(2px); }
+  }
+
+  .page-banner.dev-banner-hitshake {
+    animation: dev-banner-hitshake 0.3s ease-in-out;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .dev-dog,
-    .dev-dog.dev-dog-caught {
+    .dev-dog.dev-dog-caught,
+    .page-banner.dev-banner-hitshake {
       animation: none;
     }
 
-    .dev-dog-bubble {
-      animation: none;
-      opacity: 1;
-      transform: translateX(-50%) translateY(-14px);
+    .dev-dog-wrap.dev-dog-exit {
+      transition: none;
     }
   }
 </style>
@@ -497,19 +532,46 @@ document.addEventListener('DOMContentLoaded', function () {
   var banner = document.querySelector('.page-banner');
   if (!heading || !banner) return;
 
-  var DOG_SPRITE = "{{ '/assets/images/annoying-dog.png' | relative_url }}";
-  var DOG_REAL = "{{ '/assets/images/brown.png' | relative_url }}";
+  var prefersReduced = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var DOG_IMG = "{{ '/assets/images/brown.png' | relative_url }}";
   var BARK_SRC = "{{ '/assets/audio/bark.mp3' | relative_url }}";
-  var LINES = ['* 멍!', '* 방해 완료.', '* 진짜 모습을 드러냈다!', '* ...만족스러운 표정이다.'];
+
+  // 두 줄씩 짝지어 랜덤으로 하나를 골라 보여줌
+  var LINE_SETS = [
+    ['* 어디선가 나타난 강아지가 당신을 물끄러미 바라본다.', '* 그리고, 우렁차게 짖었다!'],
+    ['* 이 강아지는 방문자 수에 집계되지 않는다.', '* 그래도 분명히, 여기 있다.'],
+    ['* 강아지가 만족스러운 표정을 짓는다.', '* 오늘의 방해 업무, 완료.'],
+    ['* 당신은 이 개의 진짜 모습을 보고 말았다.', '* 앞으로 계속 신경 쓰일 것이다.']
+  ];
+
   var CLICKS_NEEDED = 5;
   var CLICK_WINDOW_MS = 3000;
   var AUTO_LEAVE_MS = 6000;
 
-  // 캔버스(금가루 이펙트)를 절대 위치로 얹기 위해 배너에는 이미 position이
-  // 지정돼 있을 가능성이 높지만, 혹시 없는 경우를 대비해 안전하게 확인
   if (getComputedStyle(banner).position === 'static') {
     banner.style.position = 'relative';
   }
+
+  // 단서 1: 콘솔 메모. 정답을 그대로 말하지 않고 "다섯 번 인사"라는
+  // 조각만 흘려서, 옆에 있는 발자국 힌트와 합쳐야 뜻이 통하게 함
+  console.log(
+    '%c🐾 이 근처에서 발소리가 들리는 것 같다...%c\n누군가 반갑다고 다섯 번 인사하면, 나타날지도?',
+    'color:#8C8863;font-weight:bold;',
+    'color:#8C8863;font-style:italic;'
+  );
+
+  // 단서 2: 제목 옆 희미한 발자국. 평소엔 거의 안 보이다가 제목에 마우스를
+  // 올리면 살짝 또렷해짐
+  var clue = document.createElement('span');
+  clue.className = 'dev-dog-clue';
+  clue.textContent = '🐾';
+  clue.setAttribute('aria-hidden', 'true');
+  heading.appendChild(clue);
+
+  heading.addEventListener('mouseenter', function () { clue.style.opacity = '0.4'; });
+  heading.addEventListener('mouseleave', function () { clue.style.opacity = '0.15'; });
 
   var clickCount = 0;
   var clickTimer = null;
@@ -537,13 +599,13 @@ document.addEventListener('DOMContentLoaded', function () {
     wrap.style.left = (10 + Math.random() * 70) + '%';
 
     var img = document.createElement('img');
-    img.src = DOG_SPRITE;
+    img.src = DOG_IMG;
     img.alt = '';
     img.className = 'dev-dog';
     wrap.appendChild(img);
     banner.appendChild(wrap);
 
-    var autoLeave = setTimeout(remove, AUTO_LEAVE_MS);
+    var autoLeave = setTimeout(function () { leave(); }, AUTO_LEAVE_MS);
 
     img.addEventListener('click', function (e) {
       e.stopPropagation();
@@ -552,26 +614,67 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function caught() {
-      img.src = DOG_REAL;
       img.classList.add('dev-dog-caught');
+      hitShake();
 
       try {
         new Audio(BARK_SRC).play().catch(function () {});
       } catch (e) {}
 
-      var bubble = document.createElement('div');
-      bubble.className = 'dev-dog-bubble';
-      bubble.textContent = LINES[Math.floor(Math.random() * LINES.length)];
-      wrap.appendChild(bubble);
+      var box = document.createElement('div');
+      box.className = 'dev-dog-textbox';
+      wrap.appendChild(box);
 
-      setTimeout(remove, 1800);
+      var lines = LINE_SETS[Math.floor(Math.random() * LINE_SETS.length)].slice();
+      playLines(box, lines, function () {
+        setTimeout(leave, 700);
+      });
     }
 
-    function remove() {
-      if (!wrap.parentNode) return;
-      wrap.parentNode.removeChild(wrap);
-      dogActive = false;
+    function leave() {
+      wrap.classList.add('dev-dog-exit');
+      setTimeout(function () {
+        if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+        dogActive = false;
+      }, prefersReduced ? 0 : 250);
     }
+  }
+
+  function hitShake() {
+    if (prefersReduced) return;
+    banner.classList.add('dev-banner-hitshake');
+    setTimeout(function () { banner.classList.remove('dev-banner-hitshake'); }, 300);
+  }
+
+  // 언더테일 텍스트박스처럼 한 글자씩 타이핑하며 줄을 순서대로 쌓음
+  function playLines(box, lines, done) {
+    if (!lines.length) { done(); return; }
+
+    var line = lines.shift();
+    var p = document.createElement('div');
+    box.appendChild(p);
+
+    typeLine(p, line, function () {
+      setTimeout(function () { playLines(box, lines, done); }, lines.length ? 700 : 0);
+    });
+  }
+
+  function typeLine(el, text, done) {
+    if (prefersReduced) {
+      el.textContent = text;
+      done();
+      return;
+    }
+
+    var i = 0;
+    var timer = setInterval(function () {
+      i++;
+      el.textContent = text.slice(0, i);
+      if (i >= text.length) {
+        clearInterval(timer);
+        done();
+      }
+    }, 35);
   }
 });
 </script>

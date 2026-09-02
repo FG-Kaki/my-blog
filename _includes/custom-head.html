@@ -423,36 +423,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
      정답을 바로 알려주는 대신 두 가지 단서만 흘려둡니다.
      1) 콘솔에 남기는 수상한 메모 - 개발자 도구를 열어보는 사람에게만 보임
-     2) 배너 제목 옆에 아주 희미하게 떠 있는 발자국 - 제목에 마우스를 올리면
-        살짝 또렷해져서 "여기가 수상하다"는 촉을 줌
+     2) 배너 제목에 마우스를 올리면 브라우저 탭 제목이 잠깐 바뀜 - 페이지에는
+        아무 흔적도 남기지 않으면서 "여기가 수상하다"는 촉만 줌
      실제 정답(제목 3초 안에 5회 연속 클릭)은 어디에도 문장으로 적어두지
      않고, 위 두 단서를 조합해 추리해야 나옵니다.
 
-     클릭에 성공하면 언더테일 텍스트박스처럼 대사가 한 글자씩 타이핑되며
-     두 줄이 순서대로 나타나고, 짖는 소리와 함께 배너 전체가 짧게
-     "히트스톱"처럼 흔들립니다. 이후 강아지는 옆으로 휙 뛰쳐나가듯
-     사라집니다. 클릭하지 않고 방치해도 6초 뒤 같은 방식으로 떠납니다.
-     배너가 없는 페이지에서는 클릭할 대상 자체가 없어 자연히 비활성입니다. -->
+     등장은 배너 좌우 구석 중 한쪽에서 은근슬쩍 기어나오듯 천천히
+     슬라이드해 들어오고, 퇴장(잡혔을 때든 방치돼서든)은 들어왔던 쪽
+     창문으로 다시 뛰쳐나가듯 빠르게 튕겨나갑니다. 클릭에 성공하면
+     언더테일 텍스트박스처럼 대사가 한 글자씩 타이핑되며 두 줄이 순서대로
+     나타나고, 짖는 소리와 함께 배너 전체가 짧게 "히트스톱"처럼 흔들립니다.
+     클릭하지 않고 방치해도 6초 뒤 같은 방식으로 떠납니다. 배너가 없는
+     페이지에서는 클릭할 대상 자체가 없어 자연히 비활성입니다. -->
 <style>
-  .dev-dog-clue {
-    display: inline-block;
-    margin-left: 8px;
-    opacity: 0.15;
-    transition: opacity 0.3s ease;
-    user-select: none;
-  }
-
   .dev-dog-wrap {
     position: absolute;
     bottom: 8px;
     z-index: 5;
-    transition: transform 0.25s ease-in, opacity 0.25s ease-in;
+    opacity: 0;
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease-out;
   }
 
-  .dev-dog-wrap.dev-dog-exit {
-    transform: translateX(60px) translateY(6px) scale(0.85);
-    opacity: 0;
+  .dev-dog-wrap.dev-dog-enter-left { transform: translateX(-150px); }
+  .dev-dog-wrap.dev-dog-enter-right { transform: translateX(150px); }
+
+  .dev-dog-wrap.dev-dog-settled {
+    transform: translateX(0);
+    opacity: 1;
   }
+
+  .dev-dog-wrap.dev-dog-exit-left,
+  .dev-dog-wrap.dev-dog-exit-right {
+    opacity: 0;
+    transition: transform 0.22s cubic-bezier(0.55, 0, 1, 0.45), opacity 0.2s ease-in 0.05s;
+  }
+
+  .dev-dog-wrap.dev-dog-exit-left { transform: translateX(-260px); }
+  .dev-dog-wrap.dev-dog-exit-right { transform: translateX(260px); }
 
   .dev-dog {
     display: block;
@@ -461,7 +468,6 @@ document.addEventListener('DOMContentLoaded', function () {
     image-rendering: pixelated;
     cursor: pointer;
     transform-origin: center bottom;
-    animation: dev-dog-pop 0.25s ease-out;
   }
 
   .dev-dog.dev-dog-caught {
@@ -491,11 +497,6 @@ document.addEventListener('DOMContentLoaded', function () {
     margin-top: 2px;
   }
 
-  @keyframes dev-dog-pop {
-    from { transform: scale(0); }
-    to { transform: scale(1); }
-  }
-
   @keyframes dev-dog-bounce {
     0%, 100% { transform: scale(1) translateY(0); }
     30% { transform: scale(1.08) translateY(-6px); }
@@ -515,13 +516,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .dev-dog,
     .dev-dog.dev-dog-caught,
     .page-banner.dev-banner-hitshake {
       animation: none;
     }
 
-    .dev-dog-wrap.dev-dog-exit {
+    .dev-dog-wrap,
+    .dev-dog-wrap.dev-dog-exit-left,
+    .dev-dog-wrap.dev-dog-exit-right {
       transition: none;
     }
   }
@@ -555,23 +557,29 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // 단서 1: 콘솔 메모. 정답을 그대로 말하지 않고 "다섯 번 인사"라는
-  // 조각만 흘려서, 옆에 있는 발자국 힌트와 합쳐야 뜻이 통하게 함
+  // 조각만 흘려서, 탭 제목 힌트와 합쳐야 뜻이 통하게 함
   console.log(
     '%c🐾 이 근처에서 발소리가 들리는 것 같다...%c\n누군가 반갑다고 다섯 번 인사하면, 나타날지도?',
     'color:#8C8863;font-weight:bold;',
     'color:#8C8863;font-style:italic;'
   );
 
-  // 단서 2: 제목 옆 희미한 발자국. 평소엔 거의 안 보이다가 제목에 마우스를
-  // 올리면 살짝 또렷해짐
-  var clue = document.createElement('span');
-  clue.className = 'dev-dog-clue';
-  clue.textContent = '🐾';
-  clue.setAttribute('aria-hidden', 'true');
-  heading.appendChild(clue);
+  // 단서 2: 제목에 마우스를 올리면 브라우저 탭 제목이 잠깐 바뀜. 페이지
+  // 자체에는 아무 것도 덧붙이지 않아 평소엔 완전히 티가 안 남
+  var originalTitle = document.title;
+  var titleRevertTimer = null;
 
-  heading.addEventListener('mouseenter', function () { clue.style.opacity = '0.4'; });
-  heading.addEventListener('mouseleave', function () { clue.style.opacity = '0.15'; });
+  heading.addEventListener('mouseenter', function () {
+    clearTimeout(titleRevertTimer);
+    document.title = '🐾 ...?';
+  });
+
+  heading.addEventListener('mouseleave', function () {
+    clearTimeout(titleRevertTimer);
+    titleRevertTimer = setTimeout(function () {
+      document.title = originalTitle;
+    }, 200);
+  });
 
   var clickCount = 0;
   var clickTimer = null;
@@ -594,8 +602,10 @@ document.addEventListener('DOMContentLoaded', function () {
   function spawnDog() {
     dogActive = true;
 
+    var side = Math.random() < 0.5 ? 'left' : 'right';
+
     var wrap = document.createElement('div');
-    wrap.className = 'dev-dog-wrap';
+    wrap.className = 'dev-dog-wrap dev-dog-enter-' + side;
     wrap.style.left = (10 + Math.random() * 70) + '%';
 
     var img = document.createElement('img');
@@ -605,15 +615,25 @@ document.addEventListener('DOMContentLoaded', function () {
     wrap.appendChild(img);
     banner.appendChild(wrap);
 
-    var autoLeave = setTimeout(function () { leave(); }, AUTO_LEAVE_MS);
+    // 다음 프레임에 정착 위치로 바꿔서 구석에서 슬금슬금 기어나오는
+    // 슬라이드 전환이 실제로 재생되게 함 (바로 붙이면 브라우저가
+    // 시작/끝 상태를 한 프레임에 합쳐버려 애니메이션이 생략됨)
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        wrap.classList.remove('dev-dog-enter-' + side);
+        wrap.classList.add('dev-dog-settled');
+      });
+    });
+
+    var autoLeave = setTimeout(function () { leave(side); }, AUTO_LEAVE_MS);
 
     img.addEventListener('click', function (e) {
       e.stopPropagation();
       clearTimeout(autoLeave);
-      caught();
+      caught(side);
     });
 
-    function caught() {
+    function caught(side) {
       img.classList.add('dev-dog-caught');
       hitShake();
 
@@ -627,16 +647,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       var lines = LINE_SETS[Math.floor(Math.random() * LINE_SETS.length)].slice();
       playLines(box, lines, function () {
-        setTimeout(leave, 700);
+        setTimeout(function () { leave(side); }, 700);
       });
     }
 
-    function leave() {
-      wrap.classList.add('dev-dog-exit');
+    function leave(side) {
+      wrap.classList.remove('dev-dog-settled');
+      wrap.classList.add('dev-dog-exit-' + side);
       setTimeout(function () {
         if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
         dogActive = false;
-      }, prefersReduced ? 0 : 250);
+      }, prefersReduced ? 0 : 240);
     }
   }
 

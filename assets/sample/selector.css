@@ -1,0 +1,89 @@
+/* 
+외부 스타일 시트 방식은 
+HTML 파일 내에서 CSS를 작성하는 것이 아닌
+별도의 .css파일을 만드는 것이다.
+*/
+
+/*
+속성값과 일치하는 태그(요소) 선택 
+*/
+div[name=name2]{
+    border: 1px;
+    background: yellow;
+}
+/*
+속성 안의 값이 특정 값을 띄어쓰기 단위로
+포함하는 태그(요소) 선택
+*/
+div[name~=name1]{
+    background: green;
+}
+/*
+속성 값이 특정 값과 일치하거나,
+'-'문자가 곧바로 해당 값 뒤에 붙는
+태그(요소) 선택
+
+class or class-
+*/
+div[class|=class]{
+    background: blue;
+}
+/* 
+속성 값을 가지고 있으며,
+접두사로 값이 포함되어있는 객체 선택
+*/
+div[name^=name]{
+    background-color: beige
+}
+
+/* 
+속성 안의 값이 특정 값을 포함하는 태그
+*/
+div[class*=div]    {
+background-color: aliceblue;
+}
+
+/* ================================ */
+/* 자손 선택자 테스트 */
+#test1>h4{
+    background-color: hotpink;
+}
+
+#test1>ul>li{
+    background-color: aquamarine;
+}
+    
+/* 후손 선택자 테스트 */
+#test1 ul{
+    background-color: aquamarine;
+}
+
+/* css 에서 제공하는 이벤트 관련 선택자 */
+        #active-test:active {
+            background: red;
+            color: white;
+        }
+
+        #hover-test:hover {
+            cursor: pointer;
+            background: darkgreen;
+            color: bisque;
+            font: 60px bold;
+        }
+
+        input[type=checkbox]:checked {
+            width: 100px;
+            height: 100px;
+        }
+
+        #userId:focus, #userPwd:focus {
+            background: hotpink;
+        }
+
+        option:enabled {
+            background: darkred;
+        }
+
+        option:disabled {
+            background: red;
+        }

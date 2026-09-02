@@ -418,3 +418,161 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<!-- 이스터에그: 언더테일의 "성가신 개(Annoying Dog)" 오마주. 배너 제목을
+     3초 안에 5번 연속 클릭하면 평면 스프라이트 강아지가 배너 구석에 몰래
+     나타납니다. 강아지를 클릭하면 복슬복슬한 "진짜 모습"(brown.png)으로
+     변신하며 짖고 짧은 대사창을 띄운 뒤 사라집니다. 클릭하지 않고 방치해도
+     6초 뒤 스스로 사라집니다. 배너가 없는 페이지에서는 클릭할 대상 자체가
+     없으므로 자연히 비활성 상태입니다. -->
+<style>
+  .dev-dog-wrap {
+    position: absolute;
+    bottom: 8px;
+    z-index: 5;
+  }
+
+  .dev-dog {
+    display: block;
+    width: 64px;
+    height: auto;
+    image-rendering: pixelated;
+    cursor: pointer;
+    transform-origin: center bottom;
+    animation: dev-dog-pop 0.25s ease-out;
+  }
+
+  .dev-dog.dev-dog-caught {
+    animation: dev-dog-shake 0.4s ease-in-out;
+  }
+
+  .dev-dog-bubble {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: #0e0e0e;
+    color: #efe0ad;
+    border: 2px solid #efe0ad;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    animation: dev-dog-bubble-in 0.2s ease-out 0.35s forwards;
+  }
+
+  @keyframes dev-dog-pop {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+  }
+
+  @keyframes dev-dog-shake {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(-6deg); }
+    75% { transform: scale(1.1) rotate(6deg); }
+  }
+
+  @keyframes dev-dog-bubble-in {
+    to { opacity: 1; transform: translateX(-50%) translateY(-14px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dev-dog,
+    .dev-dog.dev-dog-caught {
+      animation: none;
+    }
+
+    .dev-dog-bubble {
+      animation: none;
+      opacity: 1;
+      transform: translateX(-50%) translateY(-14px);
+    }
+  }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var heading = document.querySelector('.page-banner-heading');
+  var banner = document.querySelector('.page-banner');
+  if (!heading || !banner) return;
+
+  var DOG_SPRITE = "{{ '/assets/images/annoying-dog.png' | relative_url }}";
+  var DOG_REAL = "{{ '/assets/images/brown.png' | relative_url }}";
+  var BARK_SRC = "{{ '/assets/audio/bark.mp3' | relative_url }}";
+  var LINES = ['* 멍!', '* 방해 완료.', '* 진짜 모습을 드러냈다!', '* ...만족스러운 표정이다.'];
+  var CLICKS_NEEDED = 5;
+  var CLICK_WINDOW_MS = 3000;
+  var AUTO_LEAVE_MS = 6000;
+
+  // 캔버스(금가루 이펙트)를 절대 위치로 얹기 위해 배너에는 이미 position이
+  // 지정돼 있을 가능성이 높지만, 혹시 없는 경우를 대비해 안전하게 확인
+  if (getComputedStyle(banner).position === 'static') {
+    banner.style.position = 'relative';
+  }
+
+  var clickCount = 0;
+  var clickTimer = null;
+  var dogActive = false;
+
+  heading.addEventListener('click', function () {
+    if (dogActive) return;
+
+    clickCount++;
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(function () { clickCount = 0; }, CLICK_WINDOW_MS);
+
+    if (clickCount >= CLICKS_NEEDED) {
+      clickCount = 0;
+      clearTimeout(clickTimer);
+      spawnDog();
+    }
+  });
+
+  function spawnDog() {
+    dogActive = true;
+
+    var wrap = document.createElement('div');
+    wrap.className = 'dev-dog-wrap';
+    wrap.style.left = (10 + Math.random() * 70) + '%';
+
+    var img = document.createElement('img');
+    img.src = DOG_SPRITE;
+    img.alt = '';
+    img.className = 'dev-dog';
+    wrap.appendChild(img);
+    banner.appendChild(wrap);
+
+    var autoLeave = setTimeout(remove, AUTO_LEAVE_MS);
+
+    img.addEventListener('click', function (e) {
+      e.stopPropagation();
+      clearTimeout(autoLeave);
+      caught();
+    });
+
+    function caught() {
+      img.src = DOG_REAL;
+      img.classList.add('dev-dog-caught');
+
+      try {
+        new Audio(BARK_SRC).play().catch(function () {});
+      } catch (e) {}
+
+      var bubble = document.createElement('div');
+      bubble.className = 'dev-dog-bubble';
+      bubble.textContent = LINES[Math.floor(Math.random() * LINES.length)];
+      wrap.appendChild(bubble);
+
+      setTimeout(remove, 1800);
+    }
+
+    function remove() {
+      if (!wrap.parentNode) return;
+      wrap.parentNode.removeChild(wrap);
+      dogActive = false;
+    }
+  }
+});
+</script>
+

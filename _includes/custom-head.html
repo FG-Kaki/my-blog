@@ -428,9 +428,9 @@ document.addEventListener('DOMContentLoaded', function () {
      실제 정답(제목 3초 안에 5회 연속 클릭)은 어디에도 문장으로 적어두지
      않고, 위 두 단서를 조합해 추리해야 나옵니다.
 
-     등장은 배너 좌우 구석 중 한쪽에서 은근슬쩍 기어나오듯 천천히
-     슬라이드해 들어오고, 퇴장(잡혔을 때든 방치돼서든)은 들어왔던 쪽
-     창문으로 다시 뛰쳐나가듯 빠르게 튕겨나갑니다. 클릭에 성공하면
+     등장은 슬라이드가 아니라 안개처럼 스며들듯 천천히 흐릿함이 걷히며
+     자리에 맺히고, 퇴장(잡혔을 때든 방치돼서든)은 정반대로 순식간에
+     창문 밖으로 튕겨나갑니다. 클릭에 성공하면
      언더테일 텍스트박스처럼 대사가 한 글자씩 타이핑되며 두 줄이 순서대로
      나타나고, 짖는 소리와 함께 배너 전체가 짧게 "히트스톱"처럼 흔들립니다.
      클릭하지 않고 방치해도 6초 뒤 같은 방식으로 떠납니다. 배너가 없는
@@ -441,15 +441,17 @@ document.addEventListener('DOMContentLoaded', function () {
     bottom: 8px;
     z-index: 5;
     opacity: 0;
-    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease-out;
+    filter: blur(7px);
+    transition: opacity 1.6s ease-in-out, filter 1.6s ease-in-out, transform 1.6s ease-in-out;
   }
 
-  .dev-dog-wrap.dev-dog-enter-left { transform: translateX(-150px); }
-  .dev-dog-wrap.dev-dog-enter-right { transform: translateX(150px); }
+  .dev-dog-wrap.dev-dog-enter-left { transform: translateX(-18px) scale(0.92); }
+  .dev-dog-wrap.dev-dog-enter-right { transform: translateX(18px) scale(0.92); }
 
   .dev-dog-wrap.dev-dog-settled {
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
     opacity: 1;
+    filter: blur(0);
   }
 
   .dev-dog-wrap.dev-dog-exit-left,

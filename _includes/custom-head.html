@@ -704,13 +704,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <!-- 이스터에그: 우상단 헤더 버튼(ABOUT/ARCHIVES/GitHub) 낙하 & 강아지 회수.
      버튼을 클릭할 때마다 아주 낮은 확률(3%)로 그 버튼이 화면 바닥으로
-     툭 떨어지고, 잠시 후 강아지가 뛰어와 주워서 제자리에 다시 붙여주고
-     사라집니다. 이 확률에 걸리면 그 클릭은 실제 이동을 하지 않고
-     연출로 대체되며(preventDefault), 다시 클릭하면 평소처럼 정상 작동합니다.
-     원본 링크는 그대로 두고 화면에 보이는 클론만 움직이는 방식이라 헤더
-     레이아웃이 깨지지 않습니다. 모션을 줄이고 싶어하는 방문자에게는
-     preventDefault로 인한 "먹통처럼 보이는" 경험을 주지 않도록,
-     prefers-reduced-motion에서는 아예 확률을 굴리지 않고 항상 정상 이동합니다. -->
+     떨어져 한두 번 통통 튕기다 멈추고, 느긋하게 뛰어온 강아지가 주워서
+     제자리에 다시 붙여주고 사라집니다. 이 확률에 걸리면 그 클릭은 실제
+     이동을 하지 않고 연출로 대체되며(preventDefault), 다시 클릭하면
+     평소처럼 정상 작동합니다. 원본 링크는 그대로 두고 화면에 보이는
+     클론만 움직이는 방식이라 헤더 레이아웃이 깨지지 않습니다. 모션을
+     줄이고 싶어하는 방문자에게는 preventDefault로 인한 "먹통처럼 보이는"
+     경험을 주지 않도록, prefers-reduced-motion에서는 아예 확률을 굴리지
+     않고 항상 정상 이동합니다. -->
 <style>
   .dev-fetch-clone {
     position: fixed;
@@ -731,6 +732,19 @@ document.addEventListener('DOMContentLoaded', function () {
   .dev-fetch-pop {
     animation: dev-dog-bounce 0.4s ease-in-out;
   }
+
+  @keyframes dev-fetch-land-bounce {
+    0% { transform: translateY(0) rotate(var(--dev-tilt, 0deg)); }
+    25% { transform: translateY(-16px) rotate(var(--dev-tilt, 0deg)); }
+    45% { transform: translateY(0) rotate(var(--dev-tilt, 0deg)); }
+    65% { transform: translateY(-6px) rotate(var(--dev-tilt, 0deg)); }
+    85% { transform: translateY(0) rotate(var(--dev-tilt, 0deg)); }
+    100% { transform: translateY(0) rotate(var(--dev-tilt, 0deg)); }
+  }
+
+  .dev-fetch-clone.dev-fetch-land-bounce {
+    animation: dev-fetch-land-bounce 0.55s cubic-bezier(0.33, 0, 0.67, 1);
+  }
 </style>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -744,6 +758,17 @@ document.addEventListener('DOMContentLoaded', function () {
   var DOG_IMG = "{{ '/assets/images/brown.png' | relative_url }}";
   var DROP_CHANCE = 0.03;
   var gagActive = false;
+
+  // 낙하는 빠르게, 착지 후 통통 튕김, 강아지 회수는 느긋하게 - 각 단계별
+  // 지속 시간을 한곳에 모아 타이밍을 계산하기 쉽게 함
+  var FALL_MS = 600;
+  var BOUNCE_MS = 550;
+  var RUN_IN_MS = 1300;
+  var SETTLE_BEFORE_PICKUP_MS = 500;
+  var PICKUP_MS = 500;
+  var SETTLE_AFTER_PICKUP_MS = 550;
+  var RETURN_MS = 1300;
+  var POP_DELAY_MS = 200;
 
   links.forEach(function (link) {
     link.addEventListener('click', function (e) {
@@ -784,21 +809,29 @@ document.addEventListener('DOMContentLoaded', function () {
     var groundTop = window.innerHeight - rect.height - 16;
     var restLeft = Math.min(Math.max(rect.left + (Math.random() - 0.5) * 60, 8), window.innerWidth - rect.width - 8);
     var tilt = (Math.random() < 0.5 ? -1 : 1) * (18 + Math.random() * 20);
+    clone.style.setProperty('--dev-tilt', tilt + 'deg');
 
     // 중력에 끌리듯 바닥으로 추락
     requestAnimationFrame(function () {
-      clone.style.transition = 'left 0.6s cubic-bezier(0.55,0,1,0.45), top 0.6s cubic-bezier(0.55,0,1,0.45), transform 0.6s cubic-bezier(0.55,0,1,0.45)';
+      clone.style.transition = 'left ' + FALL_MS + 'ms cubic-bezier(0.55,0,1,0.45), top ' + FALL_MS + 'ms cubic-bezier(0.55,0,1,0.45), transform ' + FALL_MS + 'ms cubic-bezier(0.55,0,1,0.45)';
       clone.style.left = restLeft + 'px';
       clone.style.top = groundTop + 'px';
       clone.style.transform = 'rotate(' + tilt + 'deg)';
     });
 
     setTimeout(function () {
-      fetchBack(link, clone, rect, restLeft, groundTop);
-    }, 650);
+      // 착지: 툭, 투둑 하고 튕기다 멈춤
+      clone.style.transition = 'none';
+      clone.classList.add('dev-fetch-land-bounce');
+
+      setTimeout(function () {
+        clone.classList.remove('dev-fetch-land-bounce');
+        fetchBack(link, clone, rect, restLeft, groundTop, tilt);
+      }, BOUNCE_MS);
+    }, FALL_MS);
   }
 
-  function fetchBack(link, clone, homeRect, iconLeft, iconTop) {
+  function fetchBack(link, clone, homeRect, iconLeft, iconTop, tilt) {
     var dogWidth = 56;
     var side = iconLeft < window.innerWidth / 2 ? 'left' : 'right';
 
@@ -814,28 +847,29 @@ document.addEventListener('DOMContentLoaded', function () {
       ? Math.max(iconLeft - dogWidth - 6, 4)
       : Math.min(iconLeft + homeRect.width + 6, window.innerWidth - dogWidth - 4);
 
-    // 강아지가 뛰어와서 도착
+    // 강아지가 느긋하게 뛰어와서 도착
     requestAnimationFrame(function () {
-      dog.style.transition = 'left 0.45s ease-out';
+      dog.style.transition = 'left ' + RUN_IN_MS + 'ms ease-in-out';
       dog.style.left = dogBesideIcon + 'px';
     });
 
     setTimeout(function () {
-      // 주웠다: 살짝 통통 튐
+      // 잠시 냄새를 맡듯 멈췄다가, 주웠다는 의미로 살짝 통통 튐
       dog.classList.add('dev-dog-caught');
-      clone.style.transition = 'transform 0.3s ease-in-out';
-      clone.style.transform = 'translateY(-6px) rotate(0deg)';
+      clone.style.transition = 'transform ' + PICKUP_MS + 'ms ease-in-out';
+      clone.style.transform = 'translateY(-6px) rotate(' + tilt + 'deg)';
 
       setTimeout(function () {
-        // 제자리로 복귀
+        // 느긋하게 제자리로 복귀
         var dogHomeLeft = side === 'left' ? homeRect.left - dogWidth - 4 : homeRect.left + homeRect.width + 4;
-        dog.style.transition = 'left 0.6s ease-in-out, top 0.6s ease-in-out';
+        dog.style.transition = 'left ' + RETURN_MS + 'ms ease-in-out, top ' + RETURN_MS + 'ms ease-in-out';
         dog.style.left = dogHomeLeft + 'px';
         dog.style.top = (homeRect.top - 4) + 'px';
 
-        clone.style.transition = 'left 0.6s ease-in-out, top 0.6s ease-in-out, transform 0.6s ease-in-out';
+        clone.style.transition = 'left ' + RETURN_MS + 'ms ease-in-out, top ' + RETURN_MS + 'ms ease-in-out, transform ' + RETURN_MS + 'ms ease-in-out';
         clone.style.left = homeRect.left + 'px';
         clone.style.top = homeRect.top + 'px';
+        clone.style.transform = 'rotate(0deg)';
 
         setTimeout(function () {
           link.style.visibility = 'visible';
@@ -844,9 +878,9 @@ document.addEventListener('DOMContentLoaded', function () {
           dog.remove();
           gagActive = false;
           setTimeout(function () { link.classList.remove('dev-fetch-pop'); }, 400);
-        }, 620);
-      }, 320);
-    }, 470);
+        }, RETURN_MS + POP_DELAY_MS);
+      }, PICKUP_MS + SETTLE_AFTER_PICKUP_MS);
+    }, RUN_IN_MS + SETTLE_BEFORE_PICKUP_MS);
   }
 });
 </script>

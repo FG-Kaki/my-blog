@@ -1,0 +1,406 @@
+---
+layout: null
+---
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>[SYSTEM]: 렌더링 구역 외부</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #131210;
+    color: #efe0ad;
+    font-family: "JetBrains Mono", monospace;
+    overflow: hidden;
+  }
+
+  .bs-stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* 아주 옅은 사선 해치 패턴 - "아직 마감 안 된 자재 창고" 바닥 느낌 */
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(239, 224, 173, 0.03) 0,
+      rgba(239, 224, 173, 0.03) 2px,
+      transparent 2px,
+      transparent 14px
+    );
+    transform-origin: center center;
+  }
+
+  /* ===== 미완성 시스템 내부 - 와이어프레임/주석 조각들 ===== */
+  .bs-wire {
+    position: absolute;
+    border: 1px dashed rgba(239, 224, 173, 0.22);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .bs-wire-1 { top: 8%;  left: 6%;  width: 160px; height: 90px;  transform: rotate(-3deg); }
+  .bs-wire-2 { top: 14%; right: 9%; width: 110px; height: 110px; transform: rotate(4deg); }
+  .bs-wire-3 { bottom: 10%; left: 10%; width: 130px; height: 60px; transform: rotate(2deg); }
+
+  .bs-scrap {
+    position: absolute;
+    font-size: 11px;
+    line-height: 1.5;
+    color: rgba(239, 224, 173, 0.28);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+  }
+  .bs-scrap-1 { top: 10%;    left: 8%;   transform: rotate(-3deg); }
+  .bs-scrap-2 { top: 16%;    right: 7%;  transform: rotate(3deg); }
+  .bs-scrap-3 { bottom: 16%; right: 12%; transform: rotate(-2deg); }
+
+  .bs-code-scrap {
+    position: absolute;
+    bottom: 9%;
+    left: 12%;
+    font-size: 11px;
+    color: rgba(239, 224, 173, 0.35);
+    border: 1px dashed rgba(239, 224, 173, 0.25);
+    padding: 6px 10px;
+    border-radius: 2px;
+    transform: rotate(2deg);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .bs-title {
+    font-family: "Press Start 2P", "JetBrains Mono", monospace;
+    font-size: 12px;
+    line-height: 1.9;
+    color: #efe0ad;
+    text-align: center;
+    margin: 0 0 36px;
+    padding: 0 24px;
+    max-width: 90vw;
+  }
+
+  /* ===== 바닥의 미완성 파일 ===== */
+  .bs-file {
+    position: absolute;
+    bottom: 7%;
+    right: 9%;
+    background: transparent;
+    border: 1px dashed rgba(239, 224, 173, 0.5);
+    color: rgba(239, 224, 173, 0.75);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    padding: 8px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    transform: rotate(-2deg);
+  }
+  .bs-file:hover {
+    color: #efe0ad;
+    border-color: #efe0ad;
+  }
+
+  /* ===== 대사창 - 다른 이스터에그들과 같은 톤 ===== */
+  .bs-textbox {
+    position: relative;
+    min-width: 280px;
+    max-width: 460px;
+    width: calc(100% - 48px);
+    min-height: 4.4em;
+    background: #0e0e0e;
+    color: #efe0ad;
+    border: 2px solid #efe0ad;
+    border-radius: 4px;
+    padding: 16px 18px;
+    font-size: 13px;
+    line-height: 1.8;
+    text-align: left;
+  }
+  .bs-textbox div + div {
+    margin-top: 6px;
+  }
+
+  .bs-exit-wrap {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bs-exit-btn {
+    background: transparent;
+    border: 2px solid #efe0ad;
+    color: #efe0ad;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    padding: 10px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    max-width: 80vw;
+  }
+  .bs-exit-btn:hover {
+    background: #efe0ad;
+    color: #0e0e0e;
+  }
+
+  .bs-exit-caption {
+    font-size: 11px;
+    color: rgba(239, 224, 173, 0.65);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    text-align: center;
+    max-width: 80vw;
+  }
+  .bs-exit-wrap:hover .bs-exit-caption {
+    opacity: 1;
+  }
+
+  /* ===== 파일을 눌렀을 때의 아주 짧은 "틱-" 지직임 ===== */
+  @keyframes bs-glitch {
+    0%   { filter: none;                      transform: translateX(0); }
+    35%  { filter: invert(1) brightness(1.4); transform: translateX(-3px); }
+    70%  { filter: invert(1) brightness(1.1); transform: translateX(2px); }
+    100% { filter: none;                      transform: translateX(0); }
+  }
+  .bs-stage.bs-glitching {
+    animation: bs-glitch 0.1s steps(3, end);
+  }
+
+  /* ===== 퇴장 대사가 나오는 동안 - 죽어가는 TV처럼 깜빡거림 ===== */
+  @keyframes bs-tv-flicker {
+    0%, 19%, 21%, 23%, 54%, 56%, 100% { opacity: 1;    filter: brightness(1); }
+    20%, 22%, 55%                     { opacity: 0.82; filter: brightness(1.4); }
+  }
+  .bs-stage.bs-flickering {
+    animation: bs-tv-flicker 0.6s steps(1, end) infinite;
+  }
+
+  /* ===== 최종 나가기 - TV 전원이 완전히 꺼지듯 화면이 접히는 연출 ===== */
+  @keyframes bs-crt-off {
+    0%   { transform: scaleY(1);     filter: brightness(1); opacity: 1; }
+    55%  { transform: scaleY(0.03);  filter: brightness(3.2); opacity: 1; }
+    100% { transform: scaleY(0.001); filter: brightness(6); opacity: 0; }
+  }
+  .bs-stage.bs-crt-off {
+    animation: bs-crt-off 0.42s ease-in forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bs-stage.bs-glitching,
+    .bs-stage.bs-flickering,
+    .bs-stage.bs-crt-off {
+      animation: none;
+    }
+  }
+
+  @media screen and (max-width: 640px) {
+    .bs-wire-1, .bs-wire-2, .bs-wire-3,
+    .bs-scrap-1, .bs-scrap-2, .bs-scrap-3,
+    .bs-code-scrap {
+      display: none; /* 좁은 화면에서는 장식 요소가 대사창과 겹치므로 정리 */
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="bs-stage" id="bsStage">
+    <div class="bs-wire bs-wire-1"></div>
+    <div class="bs-wire bs-wire-2"></div>
+    <div class="bs-wire bs-wire-3"></div>
+
+    <div class="bs-scrap bs-scrap-1">/* TODO: 배너 이미지 자리 나중에 채우기 */</div>
+    <div class="bs-scrap bs-scrap-2">&lt;!-- 여기 그림 넣을 예정 --&gt;</div>
+    <div class="bs-scrap bs-scrap-3">// FIXME: 이 부분 왜 안 되는지 나중에 보기</div>
+    <div class="bs-code-scrap">// 며칠 전에 먹다 남은 코드 조각</div>
+
+    <h1 class="bs-title">[SYSTEM]: 이 공간은 렌더링 구역 외부입니다.</h1>
+
+    <button type="button" class="bs-file" id="bsFile">[작성중_임시저장_final.txt]</button>
+
+    <div class="bs-textbox" id="bsTextbox"></div>
+
+    <div class="bs-exit-wrap" id="bsExitWrap">
+      <button type="button" class="bs-exit-btn" id="bsExitBtn">이쯤 하고 서로를 위해 퇴장하기</button>
+      <div class="bs-exit-caption">현명한 판단입니다. 오래 계셔봤자 눈만 피로해집니다.</div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  var stage = document.getElementById('bsStage');
+  var textbox = document.getElementById('bsTextbox');
+  var fileEl = document.getElementById('bsFile');
+  var exitBtn = document.getElementById('bsExitBtn');
+
+  var prefersReduced = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var HOME_URL = "{{ '/' | relative_url }}";
+
+  var INTRO_LINES = [
+    '...',
+    '여기는 렌더링 구역 외부입니다.',
+    '뭐, 계속 서 계셔도 말리진 않겠습니다만...',
+    '보시다시피 아직 인테리어도 안 끝났고, 작성하다 만 주석 코드들이 아무렇게나 굴러다니는 중입니다.',
+    '솔직히 말씀드리면, 여기 계속 계셔봤자 당신의 귀중한 인생 10초만 낭비되는 셈입니다.',
+    '못 본 척 돌아가시는 게 방문자님의 정신 건강과 눈 피로도에 훨씬 이로울 텐데요.'
+  ];
+
+  var FILE_LINES = [
+    '아, 그걸 클릭하셨군요.',
+    '열어보셔도 소용없습니다. 내용이 아예 없는 0 Byte짜리 껍데기 파일이거든요.',
+    '클릭할 때 들어간 당신의 손가락 근육 에너지가 아까울 뿐입니다.',
+    '...정말 아무것도 안 나오니까 괜히 마우스 수명 깎지 마세요.'
+  ];
+
+  var EXIT_CLICK_LINES = [
+    '탁월한 선택입니다. 사실 여기 더 계셨으면 블로그 백엔드가 방문자님의 브라우저 메모리를 과하게 훔쳐 쓸 예정이었거든요.',
+    '서로 윈윈(Win-Win)인 겁니다. 잘 가세요.'
+  ];
+
+  var IDLE_LINES = [
+    '...',
+    '...아직도 안 가셨네요.',
+    '혹시 여기서 엄청난 비밀 보스라도 나올 줄 알고 대기 타시는 건가요?',
+    '아쉽게도 여기 있는 건 오직 어색한 정적과 쓸데없이 소모되는 당신의 데이터뿐입니다.',
+    '슬슬 나가시는 게 서로의 마음 평화에 도움이 될 텐데요.'
+  ];
+
+  // 배경을 마구 연타할 때 클릭마다 한 줄씩 - 마지막 줄이 뜨면 강제 퇴장
+  var BG_CLICK_LINES = [
+    '그만 클릭하세요.',
+    '클릭한다고 해서 새로운 대사가 나오지 않습니다.',
+    '...고집이 참 세시군요.',
+    '좋습니다. 당신이 이겼습니다. 이제 진짜로 보여줄 게 없으니 강제 퇴장시킵니다.'
+  ];
+
+  var IDLE_MS = 30000;
+  var idleTimer = null;
+  var bgClickCount = 0;
+
+  // ===== 타자기 효과 =====
+  function typeLine(el, text, done) {
+    if (prefersReduced) {
+      el.textContent = text;
+      done();
+      return;
+    }
+    var i = 0;
+    var timer = setInterval(function () {
+      i++;
+      el.textContent = text.slice(0, i);
+      if (i >= text.length) {
+        clearInterval(timer);
+        done();
+      }
+    }, 35);
+  }
+
+  function playLines(lines, done) {
+    textbox.innerHTML = '';
+    step();
+
+    function step() {
+      if (!lines.length) { if (done) done(); return; }
+      var line = lines.shift();
+      var p = document.createElement('div');
+      textbox.appendChild(p);
+      typeLine(p, line, function () {
+        setTimeout(step, lines.length ? 700 : 0);
+      });
+    }
+  }
+
+  // ===== 진입 시퀀스 =====
+  setTimeout(function () {
+    playLines(INTRO_LINES.slice(), armIdleTimer);
+  }, 1500);
+
+  // ===== 방치 감지 - 상호작용마다 타이머 리셋 =====
+  function armIdleTimer() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(showIdleLines, IDLE_MS);
+  }
+
+  function showIdleLines() {
+    playLines(IDLE_LINES.slice(), armIdleTimer);
+  }
+
+  ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(function (evt) {
+    window.addEventListener(evt, armIdleTimer, { passive: true });
+  });
+
+  // ===== 미완성 파일 클릭 =====
+  fileEl.addEventListener('click', function (e) {
+    e.stopPropagation(); // 배경 연타 카운트에 섞이지 않게
+
+    if (!prefersReduced) {
+      stage.classList.add('bs-glitching');
+      setTimeout(function () { stage.classList.remove('bs-glitching'); }, 100);
+    }
+
+    playLines(FILE_LINES.slice(), armIdleTimer);
+  });
+
+  // ===== 복귀 버튼 =====
+  exitBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    clearTimeout(idleTimer);
+
+    if (!prefersReduced) stage.classList.add('bs-flickering');
+
+    playLines(EXIT_CLICK_LINES.slice(), function () {
+      setTimeout(function () {
+        stage.classList.remove('bs-flickering');
+        finalExit();
+      }, prefersReduced ? 400 : 900);
+    });
+  });
+
+  // ===== 배경(빈 공간) 연타 - 파일/버튼 클릭은 제외 =====
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.bs-file, .bs-exit-wrap')) return;
+    if (bgClickCount >= BG_CLICK_LINES.length) return;
+
+    var line = BG_CLICK_LINES[bgClickCount];
+    bgClickCount++;
+    var isLast = bgClickCount >= BG_CLICK_LINES.length;
+
+    playLines([line], function () {
+      if (isLast) {
+        clearTimeout(idleTimer);
+        setTimeout(finalExit, 1000);
+      } else {
+        armIdleTimer();
+      }
+    });
+  });
+
+  function finalExit() {
+    if (prefersReduced) {
+      window.location.href = HOME_URL;
+      return;
+    }
+    stage.classList.add('bs-crt-off');
+    setTimeout(function () {
+      window.location.href = HOME_URL;
+    }, 420);
+  }
+})();
+</script>
+</body>
+</html>

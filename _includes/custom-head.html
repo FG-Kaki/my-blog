@@ -956,13 +956,16 @@ document.addEventListener('DOMContentLoaded', function () {
     mask-image: radial-gradient(circle 70px at var(--dev-mx, 50%) var(--dev-my, 50%), transparent 0, transparent 45px, black 100px);
   }
 
-  /* 배너 영역은 스포트라이트 마스크를 적용하지 않고 항상 완전히 덮어두는
-     패치. .dev-blackout-fill 위, .dev-candle-scene 아래에 위치해서
-     텍스트박스는 그대로 보이되 배너만 절대 비치지 않게 한다 */
+  /* 배너 영역은 실제 배너 사진이 절대 비치지 않게 완전히 덮어두되, 커서를
+     올렸을 때 아무 반응도 없으면 그 자리만 스포트라이트가 죽어버린 것처럼
+     보인다. 그래서 배너 사진 자체는 안 보여주는 대신, 커서 위치(--dev-mx/
+     --dev-my, 부모에서 상속)를 따라 은은한 촛불색 글로우만 얹어서 "빛이
+     배너 표면을 스치고 지나간다"는 느낌만 남긴다 */
   .dev-banner-patch {
     position: fixed;
     display: none;
-    background: #000;
+    background-color: #000;
+    background-image: radial-gradient(circle 90px at var(--dev-mx, 50%) var(--dev-my, 50%), rgba(255, 196, 120, 0.22), transparent 70%);
   }
 
   .dev-candle-scene {

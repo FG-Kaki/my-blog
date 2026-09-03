@@ -1391,3 +1391,274 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<!-- 이스터에그: "정말로 아무것도 없습니다" - 무한 스크롤 장난.
+     문서 맨 아래(바닥)에 이미 도달한 상태에서 휠을 더 내리려는 시도(wheel
+     이벤트, deltaY > 0)를 감지하면, 그 순간 바닥 밑에 실제로 여러 화면
+     높이만큼의 빈 여백(.dev-scroll-void)을 붙여 문서 자체를 늘린다. 미리
+     페이지를 길게 만들어두는 게 아니라 바닥에서 더 내리려 할 때만 만들기
+     때문에, 평소에는 푸터 아래에 아무 흔적도 남지 않는다. 여백에 들어서는
+     순간부터 배경색이 짙은 회색에서 시작해, 더 깊이 내려갈수록(scroll
+     이벤트마다 rAF로 묶어 계산) 검정에 가깝게 짙어진다 - "뭔가 잘못된
+     곳으로 들어가고 있다"는 긴장감을 준다. 별도의 타이머 없이, 그 여백
+     안에 미리 심어둔 두 지점(메시지 1·2)과 종료 지점을 IntersectionObserver로
+     지켜보다가 실제로 스크롤해서 그 지점에 닿을 때만 반응한다 - 그래서
+     마우스 휠, 트랙패드, 스페이스바, 스크롤바 드래그 등 스크롤 방법과
+     무관하게 똑같이 동작한다. 종료 지점에 닿으면 화면이 짧게(0.15초)
+     번쩍 암전됐다가, 암전이 걷히는 것과 동시에 엘리베이터 추락음(효과음
+     파일은 아직 없어 경로만 잡아둠, assets/audio/elevator-fall.mp3)과
+     화면 전체에 짧은 블러 효과를 곁들여 맨 위까지 순식간이 아니라
+     가속하며 솟구쳤다 부드럽게 멈추는 스크롤(약 0.48초, ease-out)로
+     강제 이동한다. 여백은 도착 직후 통째로 제거되어 페이지는 원래
+     길이로 돌아가고, 다음에 또 바닥에서 시도하면 처음부터 다시
+     진행된다(페이지 메모리에만 상태를 두어 새로고침 시에도 초기화).
+     촛불 이스터에그가 떠 있어 스크롤이 잠겨 있는 동안(documentElement의
+     overflow:hidden)은 진짜 바닥 도달 여부를 신뢰할 수 없어 아예 판단을
+     쉰다. prefers-reduced-motion에서는 암전/블러/솟구침 없이 곧바로 맨
+     위로 이동한다(배경색 변화는 움직임이 아니라 색상 전환이라 그대로
+     둔다). -->
+<style>
+  .dev-scroll-void {
+    position: relative;
+    width: 100%;
+  }
+
+  /* 강아지/촛불 이스터에그의 텍스트박스(.dev-dog-textbox, .dev-textbox)와
+     같은 톤 - 어두운 배경, 크림색 글자, 테두리 - 으로 맞춘 대사창. 이
+     블록 안에서 따로 정의해서(공유 클래스 재사용 대신) 각 이스터에그
+     블록이 서로 독립적으로 남아있게 한다 */
+  .dev-scroll-textbox {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 200px;
+    max-width: 280px;
+    background: #0e0e0e;
+    color: #efe0ad;
+    border: 2px solid #efe0ad;
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    text-align: center;
+    white-space: normal;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+
+  .dev-scroll-textbox.dev-scroll-textbox-visible {
+    opacity: 1;
+  }
+
+  .dev-scroll-flash {
+    position: fixed;
+    inset: 0;
+    z-index: 10002;
+    background: #000;
+    opacity: 0;
+    /* 걷힐 때(클래스 제거 시) 쓰이는 지속시간 - 위로 솟구치는 스크롤과
+       나란히 서서히 사라지게 함 */
+    transition: opacity 0.3s ease;
+  }
+
+  .dev-scroll-flash.dev-scroll-flash-in {
+    opacity: 1;
+    /* 나타날 때(클래스 추가 시)는 훨씬 빠르게 - 번쩍 하고 암전되는 느낌 */
+    transition: opacity 0.15s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dev-scroll-textbox,
+    .dev-scroll-flash,
+    .dev-scroll-flash.dev-scroll-flash-in {
+      transition: none;
+    }
+  }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var prefersReduced = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var MSG1 = '정말로 아무것도 없습니다.';
+  var MSG2 = '음, 고집이 세시군요. 좋습니다.';
+
+  var BOTTOM_TOLERANCE = 4;
+  var VOID_SCREENS = 8;      // 여백 전체 높이 (화면 높이 배수)
+  var MSG1_AT = 1.5;         // 첫 대사가 나타나는 지점
+  var MSG2_AT = 4;           // 둘째 대사가 나타나는 지점
+  var END_AT = 7;            // 여기 닿으면 암전 후 맨 위로
+  var DARKEN_FULL_AT = 6;    // 여기까지 내려가면 완전한 검정에 도달 (END_AT 바로 앞)
+  var VOID_START_RGB = [58, 58, 58]; // 여백에 들어서자마자 보이는 짙은 회색
+  var VOID_END_RGB = [0, 0, 0];      // 다 내려갔을 때의 검정
+  var WHOOSH_MS = 480;       // 맨 위로 솟구쳐 올라가는 데 걸리는 시간
+  var ELEVATOR_SRC = "{{ '/assets/audio/elevator-fall.mp3' | relative_url }}";
+
+  var voidActive = false;
+  var voidEl = null;
+  var voidVh = 0;
+  var voidTop = 0;
+  var voidScrollHandler = null;
+  var darkenRaf = null;
+
+  function atRealBottom() {
+    return window.scrollY + window.innerHeight >=
+      document.documentElement.scrollHeight - BOTTOM_TOLERANCE;
+  }
+
+  window.addEventListener('wheel', function (e) {
+    if (voidActive) return; // 이미 열려 있으면 IntersectionObserver가 알아서 진행
+    if (e.deltaY <= 0) return;
+    // 촛불 이스터에그 등 다른 이유로 스크롤이 잠겨 있는 동안은 "진짜 바닥"을
+    // 신뢰할 수 없으므로 판단을 쉰다
+    if (document.documentElement.style.overflow === 'hidden') return;
+    if (!atRealBottom()) return;
+
+    openVoid();
+  }, { passive: true });
+
+  function openVoid() {
+    voidActive = true;
+
+    voidVh = window.innerHeight;
+    voidEl = document.createElement('div');
+    voidEl.className = 'dev-scroll-void';
+    voidEl.style.height = (voidVh * VOID_SCREENS) + 'px';
+    voidEl.innerHTML =
+      '<div class="dev-scroll-textbox" style="top:' + (voidVh * MSG1_AT) + 'px">' + MSG1 + '</div>' +
+      '<div class="dev-scroll-textbox" style="top:' + (voidVh * MSG2_AT) + 'px">' + MSG2 + '</div>' +
+      '<div class="dev-scroll-end" style="position:absolute;top:' + (voidVh * END_AT) + 'px;width:1px;height:1px;"></div>';
+    document.body.appendChild(voidEl);
+    voidTop = voidEl.offsetTop;
+
+    // 여백에 들어서자마자 짙은 회색부터 시작 - 스크롤이 깊어질수록
+    // updateVoidDarkness가 점점 검정에 가깝게 갱신한다
+    updateVoidDarkness();
+    voidScrollHandler = function () {
+      if (darkenRaf) return;
+      darkenRaf = requestAnimationFrame(updateVoidDarkness);
+    };
+    window.addEventListener('scroll', voidScrollHandler, { passive: true });
+
+    var msgs = voidEl.querySelectorAll('.dev-scroll-textbox');
+    var endMarker = voidEl.querySelector('.dev-scroll-end');
+
+    if (prefersReduced) {
+      // 페이드/타이핑 없이 여백에 들어서자마자 바로 보이게
+      msgs.forEach(function (m) { m.classList.add('dev-scroll-textbox-visible'); });
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+
+        if (entry.target === endMarker) {
+          observer.disconnect();
+          endSequence();
+        } else {
+          entry.target.classList.add('dev-scroll-textbox-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0 });
+
+    msgs.forEach(function (m) { observer.observe(m); });
+    observer.observe(endMarker);
+  }
+
+  // 여백 속으로 얼마나 내려갔는지에 비례해 배경색을 짙은 회색에서
+  // 검정으로 보간한다. scroll 이벤트마다 rAF로 묶어서 과도하게 자주
+  // 계산하지 않게 한다
+  function updateVoidDarkness() {
+    darkenRaf = null;
+    if (!voidEl) return;
+
+    var depth = window.scrollY - voidTop;
+    var progress = Math.max(0, Math.min(1, depth / (voidVh * DARKEN_FULL_AT)));
+    var r = Math.round(VOID_START_RGB[0] + (VOID_END_RGB[0] - VOID_START_RGB[0]) * progress);
+    var g = Math.round(VOID_START_RGB[1] + (VOID_END_RGB[1] - VOID_START_RGB[1]) * progress);
+    var b = Math.round(VOID_START_RGB[2] + (VOID_END_RGB[2] - VOID_START_RGB[2]) * progress);
+    voidEl.style.backgroundColor = 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+
+  function endSequence() {
+    if (voidScrollHandler) {
+      window.removeEventListener('scroll', voidScrollHandler);
+      voidScrollHandler = null;
+    }
+    if (darkenRaf) {
+      cancelAnimationFrame(darkenRaf);
+      darkenRaf = null;
+    }
+
+    var flash = document.createElement('div');
+    flash.className = 'dev-scroll-flash';
+    document.body.appendChild(flash);
+
+    var savedOverflow = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = 'hidden';
+
+    function cleanup() {
+      if (voidEl && voidEl.parentNode) voidEl.parentNode.removeChild(voidEl);
+      voidEl = null;
+      if (flash.parentNode) flash.parentNode.removeChild(flash);
+      document.documentElement.style.overflow = savedOverflow;
+      voidActive = false;
+    }
+
+    if (prefersReduced) {
+      // 암전/솟구침 없이 곧바로 맨 위로
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      cleanup();
+      return;
+    }
+
+    void flash.offsetWidth; // 강제 리플로우 - 곧바로 클래스를 추가해도 트랜지션이 재생되게 함
+    flash.classList.add('dev-scroll-flash-in');
+
+    setTimeout(function () {
+      // 화면이 완전히 검게 된 순간 - 암전이 걷히는 것과 동시에 엘리베이터
+      // 추락음과 함께 맨 위로 미친 듯한 속도로 솟구쳐 오른다
+      flash.classList.remove('dev-scroll-flash-in');
+
+      try { new Audio(ELEVATOR_SRC).play().catch(function () {}); } catch (e) {}
+
+      document.body.style.transition = 'filter 0.15s ease';
+      document.body.style.filter = 'blur(7px)';
+
+      whooshToTop(WHOOSH_MS, function () {
+        document.body.style.filter = '';
+        setTimeout(function () { document.body.style.transition = ''; }, 200);
+        cleanup();
+      });
+    }, 150);
+  }
+
+  // 현재 위치에서 맨 위까지, 가속하며 솟구쳤다 부드럽게 멈추듯 스크롤한다
+  // (ease-out) - 거리와 무관하게 항상 duration 안에 도착해서 "얼마나 깊이
+  // 내려가 있었든" 항상 빠르게 느껴진다
+  function whooshToTop(duration, done) {
+    var startY = window.scrollY;
+    if (startY <= 0) { done(); return; }
+
+    var startTime = null;
+
+    function step(ts) {
+      if (startTime === null) startTime = ts;
+      var t = Math.min(1, (ts - startTime) / duration);
+      var eased = 1 - Math.pow(1 - t, 3);
+      window.scrollTo(0, Math.round(startY * (1 - eased)));
+
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        window.scrollTo(0, 0);
+        done();
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+});
+</script>
+

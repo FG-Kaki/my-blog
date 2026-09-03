@@ -1405,17 +1405,19 @@ document.addEventListener('DOMContentLoaded', function () {
      마우스 휠, 트랙패드, 스페이스바, 스크롤바 드래그 등 스크롤 방법과
      무관하게 똑같이 동작한다. 종료 지점에 닿으면 화면이 짧게(0.15초)
      번쩍 암전됐다가, 암전이 걷히는 것과 동시에 엘리베이터 추락음(효과음
-     파일은 아직 없어 경로만 잡아둠, assets/audio/elevator-fall.mp3)과
-     화면 전체에 짧은 블러 효과를 곁들여 맨 위까지 순식간이 아니라
-     가속하며 솟구쳤다 부드럽게 멈추는 스크롤(약 0.48초, ease-out)로
-     강제 이동한다. 여백은 도착 직후 통째로 제거되어 페이지는 원래
+     파일은 아직 없어 경로만 잡아둠, assets/audio/elevator-fall.mp3),
+     화면 전체 블러 + 거친 흔들림(dev-scroll-shake, 진동+미세 회전), 위에서
+     아래로 쏟아지는 빛줄기(dev-scroll-streak, "바람을 헤치는" 느낌)를
+     곁들여 맨 위까지 순식간이 아니라 가속하며 솟구쳤다 부드럽게 멈추는
+     스크롤(약 0.48초, ease-out)로 강제 이동한다 - "확 끌려 올라간다"는
+     느낌을 주려는 것. 여백은 도착 직후 통째로 제거되어 페이지는 원래
      길이로 돌아가고, 다음에 또 바닥에서 시도하면 처음부터 다시
      진행된다(페이지 메모리에만 상태를 두어 새로고침 시에도 초기화).
      촛불 이스터에그가 떠 있어 스크롤이 잠겨 있는 동안(documentElement의
      overflow:hidden)은 진짜 바닥 도달 여부를 신뢰할 수 없어 아예 판단을
-     쉰다. prefers-reduced-motion에서는 암전/블러/솟구침 없이 곧바로 맨
-     위로 이동한다(배경색 변화는 움직임이 아니라 색상 전환이라 그대로
-     둔다). -->
+     쉰다. prefers-reduced-motion에서는 암전/블러/흔들림/빛줄기/솟구침
+     없이 곧바로 맨 위로 이동한다(배경색 변화는 움직임이 아니라 색상
+     전환이라 그대로 둔다). -->
 <style>
   .dev-scroll-void {
     position: relative;
@@ -1467,11 +1469,69 @@ document.addEventListener('DOMContentLoaded', function () {
     transition: opacity 0.15s ease;
   }
 
+  /* 맨 위로 솟구쳐 올라가는 동안 화면(body) 전체를 세게 흔들어 "확 끌려
+     올라간다"는 느낌을 더한다. 진동뿐 아니라 미세한 회전(rotate)도 섞어
+     더 거칠게 느껴지게 함. animation-duration은 JS에서 WHOOSH_MS와 맞춰
+     인라인으로 덮어쓴다 */
+  @keyframes dev-scroll-shake {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    10%      { transform: translate(-9px, 5px) rotate(-0.6deg); }
+    20%      { transform: translate(8px, -7px) rotate(0.5deg); }
+    30%      { transform: translate(-8px, 8px) rotate(-0.6deg); }
+    40%      { transform: translate(9px, -5px) rotate(0.6deg); }
+    50%      { transform: translate(-8px, 4px) rotate(-0.5deg); }
+    60%      { transform: translate(7px, -8px) rotate(0.5deg); }
+    70%      { transform: translate(-6px, 6px) rotate(-0.4deg); }
+    80%      { transform: translate(8px, -4px) rotate(0.5deg); }
+    90%      { transform: translate(-6px, 5px) rotate(-0.4deg); }
+  }
+
+  .dev-scroll-shake {
+    animation-name: dev-scroll-shake;
+    animation-duration: 0.48s;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+  }
+
+  /* 솟구치는 동안 화면을 스쳐 지나가는 바람/빛줄기 - 위에서 아래로
+     빠르게 흘러내리며 "바람을 헤치고 올라간다"는 속도감을 준다. 줄기
+     개수만큼 JS가 동적으로 만들어 붙이고 끝나면 통째로 제거한다 */
+  .dev-scroll-streaks {
+    position: fixed;
+    inset: 0;
+    z-index: 10003;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .dev-scroll-streak {
+    position: absolute;
+    top: -35vh;
+    width: 2px;
+    height: 45vh;
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.65), transparent);
+    animation-name: dev-scroll-streak-fall;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+  }
+
+  @keyframes dev-scroll-streak-fall {
+    0%   { transform: translateY(0); opacity: 0; }
+    12%  { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { transform: translateY(180vh); opacity: 0; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .dev-scroll-textbox,
     .dev-scroll-flash,
     .dev-scroll-flash.dev-scroll-flash-in {
       transition: none;
+    }
+
+    .dev-scroll-shake,
+    .dev-scroll-streak {
+      animation: none;
     }
   }
 </style>
@@ -1492,6 +1552,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var VOID_START_RGB = [58, 58, 58]; // 여백에 들어서자마자 보이는 짙은 회색
   var VOID_END_RGB = [0, 0, 0];      // 다 내려갔을 때의 검정
   var WHOOSH_MS = 480;       // 맨 위로 솟구쳐 올라가는 데 걸리는 시간
+  var STREAK_COUNT = 14;     // 바람을 헤치는 느낌을 주는 빛줄기 개수
   var ELEVATOR_SRC = "{{ '/assets/audio/elevator-fall.mp3' | relative_url }}";
 
   var voidActive = false;
@@ -1625,13 +1686,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
       document.body.style.transition = 'filter 0.15s ease';
       document.body.style.filter = 'blur(7px)';
+      document.body.style.animationDuration = WHOOSH_MS + 'ms';
+      document.body.classList.add('dev-scroll-shake');
+
+      var streaks = spawnStreaks(WHOOSH_MS);
 
       whooshToTop(WHOOSH_MS, function () {
         document.body.style.filter = '';
+        document.body.classList.remove('dev-scroll-shake');
+        document.body.style.animationDuration = '';
         setTimeout(function () { document.body.style.transition = ''; }, 200);
+        if (streaks.parentNode) streaks.parentNode.removeChild(streaks);
         cleanup();
       });
     }, 150);
+  }
+
+  // 바람을 헤치듯 스쳐 지나가는 빛줄기들을 화면에 흩뿌린다. 가로 위치와
+  // 낙하 속도·시작 지연을 각각 살짝 무작위로 흩어서 한 줄기씩 튀지 않고
+  // 자연스럽게 쏟아지는 것처럼 보이게 한다
+  function spawnStreaks(duration) {
+    var wrap = document.createElement('div');
+    wrap.className = 'dev-scroll-streaks';
+
+    for (var i = 0; i < STREAK_COUNT; i++) {
+      var streak = document.createElement('div');
+      streak.className = 'dev-scroll-streak';
+      streak.style.left = (Math.random() * 100) + '%';
+      streak.style.animationDuration = (duration * (0.7 + Math.random() * 0.5)) + 'ms';
+      streak.style.animationDelay = (Math.random() * duration * 0.3) + 'ms';
+      wrap.appendChild(streak);
+    }
+
+    document.body.appendChild(wrap);
+    return wrap;
   }
 
   // 현재 위치에서 맨 위까지, 가속하며 솟구쳤다 부드럽게 멈추듯 스크롤한다

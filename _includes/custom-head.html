@@ -1750,3 +1750,324 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<!-- 이스터에그: "선택 장애 유발자" - Yes/No 팝업.
+     게시글 페이지(.post .post-content가 있는 페이지)에 진입할 때 아주
+     낮은 확률(1%)로, 쿠키 동의창을 흉내 낸 "이 포스트가 마음에
+     드십니까?" 팝업이 뜬다. [예]를 누르면 "감사합니다! (하지만 아무
+     일도 일어나지 않았습니다)"로 문구만 바뀌고 잠시 후 사라진다.
+
+     [아니오]를 처음 누르는 순간에는 별도의 대사를 띄우지 않는다 - 대신
+     그 순간 강아지(다른 두 이스터에그와 같은 assets/images/brown.png
+     스프라이트)가 화면 가장자리에서 달려 들어와 [아니오] 버튼을 물고
+     원래 있던 방향으로 도로 뛰쳐나가며 통째로 데려가 버린다(버튼은
+     그대로 DOM에서 사라진다). 이와 동시에 [예] 버튼은 팝업 박스 밖으로
+     나와 화면을 떠다니며 마우스 커서를 향해 계속 끌려온다(매 프레임
+     커서 쪽으로 조금씩 다가감) - [아니오]가 사라진 뒤로는 사실상 [예]만
+     유효한 선택지로 남아, 커서를 움직일수록 결국 [예]를 누르게 된다.
+     그 순간이 와도 문구는 똑같이 "감사합니다..."로 마무리된다. 마우스
+     이벤트가 없는 터치 환경이나 prefers-reduced-motion에서는 강아지
+     연출/추적 애니메이션 없이 [아니오]가 즉시 사라지고 [예]는 원래
+     자리에 고정된 채로 있어 평소처럼 눌린다. Esc 키를 누르면 언제든
+     조용히 닫힌다(안전장치, 게임의 일부로 알리지는 않음). 1% 확률로
+     페이지당 한 번만 판단하므로 별도의 상태 저장은 필요 없다. -->
+<style>
+  .dev-yn-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10004;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .dev-yn-overlay.dev-yn-visible {
+    opacity: 1;
+  }
+
+  /* 강아지/촛불/무한스크롤 이스터에그의 텍스트박스와 같은 톤 - 어두운
+     배경, 크림색 글자, 테두리, JetBrains Mono - 로 맞춘 팝업. 다른
+     블록들처럼 이 안에서 따로 정의해 각 이스터에그 블록의 독립성을
+     유지한다 */
+  .dev-yn-popup {
+    background: #0e0e0e;
+    color: #efe0ad;
+    border: 2px solid #efe0ad;
+    border-radius: 4px;
+    padding: 22px 26px;
+    max-width: 320px;
+    width: calc(100% - 48px);
+    text-align: center;
+    font-family: "JetBrains Mono", monospace;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .dev-yn-message {
+    margin: 0 0 18px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .dev-yn-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .dev-yn-yes,
+  .dev-yn-no {
+    padding: 8px 22px;
+    border-radius: 4px;
+    border: 2px solid #efe0ad;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .dev-yn-yes {
+    background: #efe0ad;
+    color: #0e0e0e;
+  }
+
+  .dev-yn-no {
+    background: transparent;
+    color: #efe0ad;
+  }
+
+  /* [아니오]가 처음 눌리는 순간 두 버튼 다 팝업 레이아웃에서 빠져나와
+     화면 전체를 자유롭게 움직일 수 있는 상태가 된다 - [예]는 커서를
+     쫓아다니고, [아니오]는 강아지에게 물려 화면 밖으로 끌려나간다 */
+  .dev-yn-yes.dev-yn-roaming,
+  .dev-yn-no.dev-yn-roaming {
+    position: fixed;
+    margin: 0;
+    z-index: 1;
+  }
+
+  /* 강아지 - 이스터에그의 강아지 이스터에그/헤더 버튼 낙하 이스터에그와
+     같은 브라운 스프라이트를 재사용한다 */
+  .dev-yn-dog {
+    position: fixed;
+    z-index: 10005;
+    width: 56px;
+    height: auto;
+    image-rendering: pixelated;
+    pointer-events: none;
+  }
+
+  .dev-yn-dog.dev-yn-dog-bite {
+    animation: dev-yn-dog-bite 0.35s ease-in-out;
+  }
+
+  @keyframes dev-yn-dog-bite {
+    0%, 100% { transform: scale(1) translateY(0); }
+    30%      { transform: scale(1.1) translateY(-5px); }
+    60%      { transform: scale(1.05) translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dev-yn-overlay {
+      transition: none;
+    }
+
+    .dev-yn-dog.dev-yn-dog-bite {
+      animation: none;
+    }
+  }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (!document.querySelector('.post .post-content')) return;
+  if (Math.random() >= 0.01) return;
+
+  var prefersReduced = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var YES_CHASE_SPEED = 0.16;   // 프레임마다 커서 쪽으로 좁히는 비율
+  var EDGE_MARGIN = 12;         // 화면 가장자리 여백
+
+  var DOG_IMG = "{{ '/assets/images/brown.png' | relative_url }}";
+  var DOG_WIDTH = 56;
+  var DOG_RUN_IN_MS = 500;
+  var DOG_BITE_MS = 350;
+  var DOG_RUN_OUT_MS = 550;
+
+  var overlay, popup, yesBtn, noBtn;
+  var roaming = false;
+  var mouseX = null;
+  var mouseY = null;
+  var rafId = null;
+
+  setTimeout(open, 1000); // 쿠키 동의창처럼 살짝 뒤에 등장
+
+  function open() {
+    overlay = document.createElement('div');
+    overlay.className = 'dev-yn-overlay';
+    overlay.innerHTML =
+      '<div class="dev-yn-popup">' +
+        '<p class="dev-yn-message">이 포스트가 마음에 드십니까?</p>' +
+        '<div class="dev-yn-buttons">' +
+          '<button type="button" class="dev-yn-yes">예</button>' +
+          '<button type="button" class="dev-yn-no">아니오</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+
+    popup = overlay.querySelector('.dev-yn-popup');
+    yesBtn = overlay.querySelector('.dev-yn-yes');
+    noBtn = overlay.querySelector('.dev-yn-no');
+
+    void overlay.offsetWidth;
+    overlay.classList.add('dev-yn-visible');
+
+    yesBtn.addEventListener('click', acceptYes);
+    noBtn.addEventListener('click', onNoClick);
+
+    document.addEventListener('keydown', onKeydown);
+    document.addEventListener('mousemove', onMouseMove);
+  }
+
+  function onKeydown(e) {
+    if (e.key === 'Escape') close();
+  }
+
+  function onMouseMove(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  }
+
+  // 아니오를 처음 누른 순간 - 대사 없이 곧바로 [예]는 화면에 풀어놓고
+  // [아니오]는 강아지에게 맡긴다
+  function onNoClick() {
+    if (roaming) return;
+    roaming = true;
+
+    var yesRect = yesBtn.getBoundingClientRect();
+    yesBtn.style.left = yesRect.left + 'px';
+    yesBtn.style.top = yesRect.top + 'px';
+    yesBtn.classList.add('dev-yn-roaming');
+
+    noBtn.removeEventListener('click', onNoClick);
+
+    if (prefersReduced) {
+      // 강아지 연출/추적 애니메이션 없이 아니오만 곧바로 사라짐
+      noBtn.remove();
+      return;
+    }
+
+    snatchNo();
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function tick() {
+    if (mouseX !== null) {
+      moveToward(yesBtn, mouseX, mouseY, YES_CHASE_SPEED);
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function moveToward(btn, targetX, targetY, speed) {
+    var rect = btn.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
+    var nx = cx + (targetX - cx) * speed;
+    var ny = cy + (targetY - cy) * speed;
+    setCenter(btn, nx, ny, rect.width, rect.height);
+  }
+
+  // 강아지가 화면 가장자리에서 달려 들어와 [아니오]를 물고, 원래 들어온
+  // 방향으로 도로 뛰쳐나가며 통째로 데려간다(둘 다 DOM에서 제거됨).
+  // 헤더 버튼 낙하 이스터에그의 "강아지가 뛰어와서 회수해간다" 타이밍
+  // 감각을 그대로 가져왔다
+  function snatchNo() {
+    var rect = noBtn.getBoundingClientRect();
+    noBtn.style.left = rect.left + 'px';
+    noBtn.style.top = rect.top + 'px';
+    noBtn.classList.add('dev-yn-roaming');
+
+    var side = rect.left < window.innerWidth / 2 ? 'left' : 'right';
+
+    var dog = document.createElement('img');
+    dog.src = DOG_IMG;
+    dog.alt = '';
+    dog.className = 'dev-yn-dog';
+    dog.style.top = (rect.top + rect.height / 2 - DOG_WIDTH * 0.4) + 'px';
+    dog.style.left = (side === 'left' ? -DOG_WIDTH - 20 : window.innerWidth + 20) + 'px';
+    document.body.appendChild(dog);
+
+    var besideLeft = side === 'left'
+      ? Math.max(rect.left - DOG_WIDTH - 6, 4)
+      : Math.min(rect.left + rect.width + 6, window.innerWidth - DOG_WIDTH - 4);
+
+    requestAnimationFrame(function () {
+      dog.style.transition = 'left ' + DOG_RUN_IN_MS + 'ms ease-in-out';
+      dog.style.left = besideLeft + 'px';
+    });
+
+    setTimeout(function () {
+      // 도착 - 물어채는 순간 살짝 튕김
+      dog.classList.add('dev-yn-dog-bite');
+      noBtn.style.transition = 'transform ' + DOG_BITE_MS + 'ms ease-in-out';
+      noBtn.style.transform = 'translateY(-4px) rotate(' + (side === 'left' ? -8 : 8) + 'deg)';
+
+      setTimeout(function () {
+        // 왔던 방향으로 나란히 퇴장
+        var exitLeft = side === 'left' ? -DOG_WIDTH - 40 : window.innerWidth + 40;
+        var noExitLeft = side === 'left' ? -rect.width - 40 : window.innerWidth + 40;
+
+        dog.style.transition = 'left ' + DOG_RUN_OUT_MS + 'ms ease-in';
+        dog.style.left = exitLeft + 'px';
+
+        noBtn.style.transition = 'left ' + DOG_RUN_OUT_MS + 'ms ease-in, transform ' + DOG_RUN_OUT_MS + 'ms ease-in';
+        noBtn.style.left = noExitLeft + 'px';
+        noBtn.style.transform = 'rotate(' + (side === 'left' ? -16 : 16) + 'deg)';
+
+        setTimeout(function () {
+          dog.remove();
+          noBtn.remove();
+        }, DOG_RUN_OUT_MS + 60);
+      }, DOG_BITE_MS);
+    }, DOG_RUN_IN_MS);
+  }
+
+  function setCenter(btn, cx, cy, w, h) {
+    var left = Math.min(Math.max(cx - w / 2, EDGE_MARGIN), window.innerWidth - w - EDGE_MARGIN);
+    var top = Math.min(Math.max(cy - h / 2, EDGE_MARGIN), window.innerHeight - h - EDGE_MARGIN);
+    btn.style.left = left + 'px';
+    btn.style.top = top + 'px';
+  }
+
+  function acceptYes() {
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+
+    overlay.querySelector('.dev-yn-message').textContent =
+      '감사합니다! (하지만 아무 일도 일어나지 않았습니다)';
+    overlay.querySelector('.dev-yn-buttons').remove();
+
+    setTimeout(close, 1600);
+  }
+
+  function close() {
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    document.removeEventListener('keydown', onKeydown);
+    document.removeEventListener('mousemove', onMouseMove);
+
+    if (!overlay) return;
+    overlay.classList.remove('dev-yn-visible');
+    setTimeout(function () {
+      if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      overlay = null;
+    }, prefersReduced ? 0 : 300);
+  }
+});
+</script>
+

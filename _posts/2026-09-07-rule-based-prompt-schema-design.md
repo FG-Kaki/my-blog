@@ -3,7 +3,7 @@ layout: post
 title: "규칙 기반 프롬프트 자동 정리 서비스의 카테고리 스키마를 어떻게 설계했나"
 date: 2026-09-07 18:00:00 +0900
 categories: [Backend]
-tags: [규칙기반-엔진, 스키마-설계, 협업-구조, 프롬프트-엔지니어링]
+tags: [rule-based-engine, schema-design, collaboration, prompt-engineering]
 mermaid: true
 ---
 

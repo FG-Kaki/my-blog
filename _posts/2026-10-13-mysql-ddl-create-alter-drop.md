@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "잘못된 데이터가 들어오지 못하게 막기 - DDL로 설계하는 데이터 타입과 제약 조건"
-date: 2026-10-13 00:20:00 +0900
+date: 2026-10-13 09:20:00 +0900
 categories: [MySQL]
 tags: [mysql, sql, ddl, constraint, foreign-key]
 mermaid: true

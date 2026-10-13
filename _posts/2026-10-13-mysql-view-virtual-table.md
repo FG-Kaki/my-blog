@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "복잡한 통계 쿼리와 민감 정보를 감추기 - VIEW로 가상 테이블 만들기"
-date: 2026-10-13 00:50:00 +0900
+date: 2026-10-13 09:50:00 +0900
 categories: [MySQL]
 tags: [mysql, sql, view, security, left-join]
 mermaid: true

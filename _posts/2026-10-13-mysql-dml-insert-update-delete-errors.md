@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "INSERT가 계속 실패하는 이유 - 제약 조건 위반 에러 케이스 정리"
-date: 2026-10-13 00:30:00 +0900
+date: 2026-10-13 09:30:00 +0900
 categories: [MySQL]
 tags: [mysql, sql, dml, insert, constraint]
 mermaid: true

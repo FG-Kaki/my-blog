@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "100만 건에서 한 명 찾기 - 인덱스와 EXPLAIN으로 Full Scan 확인하기"
-date: 2026-10-13 01:00:00 +0900
+date: 2026-10-13 10:00:00 +0900
 categories: [MySQL]
 tags: [mysql, sql, index, explain, performance]
 mermaid: true

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "조건이 부족한 문제를 쿼리 하나로 풀기 - WHERE절·FROM절 서브쿼리"
-date: 2026-10-13 00:10:00 +0900
+date: 2026-10-13 09:10:00 +0900
 categories: [MySQL]
 tags: [mysql, sql, subquery, derived-table, join]
 mermaid: true

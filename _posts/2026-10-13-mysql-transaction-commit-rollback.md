@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "계좌이체 중간에 문제가 생기면? - 트랜잭션 COMMIT과 ROLLBACK"
-date: 2026-10-13 01:10:00 +0900
+date: 2026-10-13 10:10:00 +0900
 categories: [MySQL]
 tags: [mysql, sql, transaction, commit, rollback]
 mermaid: true

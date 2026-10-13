@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "UNION이 컬럼 개수 오류를 내는 이유 - 쿼리 결과 합치기"
-date: 2026-10-13 00:40:00 +0900
+date: 2026-10-13 09:40:00 +0900
 categories: [MySQL]
 tags: [mysql, sql, union, union-all]
 ---

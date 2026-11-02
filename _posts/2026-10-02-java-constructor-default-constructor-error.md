@@ -9,7 +9,7 @@ mermaid: true
 
 ## 들어가며 (Situation)
 
-[지난 글](/2026/10/01/java-string-array-user-type.html)에서 `Member` 클래스로 회원 정보를 하나의 자료형으로 묶었습니다. 그 글 마지막에 "`new Member()`의 `Member()`는 사실 생성자라는 메소드 호출이고, 생성자는 다음 글에서 정리하겠다"고 미뤄 두었습니다. 이번 글이 그 이어지는 내용입니다.
+[지난 글]({{ site.baseurl }}{% post_url 2026-10-01-java-string-array-user-type %})에서 `Member` 클래스로 회원 정보를 하나의 자료형으로 묶었습니다. 그 글 마지막에 "`new Member()`의 `Member()`는 사실 생성자라는 메소드 호출이고, 생성자는 다음 글에서 정리하겠다"고 미뤄 두었습니다. 이번 글이 그 이어지는 내용입니다.
 
 ## 문제 상황 (Task)
 

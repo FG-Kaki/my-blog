@@ -59,7 +59,7 @@ public void setHp(int hp) {
 }
 ```
 
-음수가 들어오면 예외를 던지는 방법도 있지만, 이 실습의 요구사항은 **0으로 보정**하는 것이었기 때문에 이 방식을 택했습니다. (`this.hp = hp;`에서 `this`가 필요한 이유는 [생성자 글](/2026/10/02/java-constructor-default-constructor-error.html)에서 정리했습니다.)
+음수가 들어오면 예외를 던지는 방법도 있지만, 이 실습의 요구사항은 **0으로 보정**하는 것이었기 때문에 이 방식을 택했습니다. (`this.hp = hp;`에서 `this`가 필요한 이유는 [생성자 글]({{ site.baseurl }}{% post_url 2026-10-02-java-constructor-default-constructor-error %})에서 정리했습니다.)
 
 `monster3.setHp(-300)`을 호출하면 `hp`가 `0`으로 보정됩니다. 다만 이 단계에서는 `setHp`를 만들어 놓았을 뿐, `monster2.hp = -200`처럼 **우회하는 길이 그대로 열려 있습니다.**
 

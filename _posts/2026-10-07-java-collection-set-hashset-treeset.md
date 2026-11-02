@@ -9,7 +9,7 @@ mermaid: true
 
 ## 들어가며 (Situation)
 
-[3편]({% post_url 2026-10-07-java-collection-list-arraylist-dto %})의 `List`는 순서가 있고 중복을 허용했습니다. 이번 `b_collection.b_set` 실습의 `Set`은 정반대로 **순서를 유지하지 않고 중복을 허용하지 않습니다.** 방문자 아이디에서 같은 사람을 한 번만 세는 것처럼 "중복 제거"가 필요할 때 쓰는 자료구조입니다.
+[3편]({{ site.baseurl }}{% post_url 2026-10-07-java-collection-list-arraylist-dto %})의 `List`는 순서가 있고 중복을 허용했습니다. 이번 `b_collection.b_set` 실습의 `Set`은 정반대로 **순서를 유지하지 않고 중복을 허용하지 않습니다.** 방문자 아이디에서 같은 사람을 한 번만 세는 것처럼 "중복 제거"가 필요할 때 쓰는 자료구조입니다.
 
 > 실제 서비스에서 겪은 문제가 아니라, 개념 학습 중 정리한 내용입니다. 실행 결과는 JDK 21에서 직접 확인했습니다.
 

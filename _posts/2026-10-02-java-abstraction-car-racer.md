@@ -152,7 +152,7 @@ while (true) {
 }
 ```
 
-`switch`의 `case 9 : break;`는 `switch`만 빠져나올 뿐 `while`을 끝내지 못합니다. 그래서 아래의 `if (no == 9)`에서 별도로 `while`의 `break`를 실행합니다. ([무한루프 글](/2026/09/29/java-loop-infinite-do-while-compile-error.html)에서 다룬 반복문 탈출 주제와 이어집니다.)
+`switch`의 `case 9 : break;`는 `switch`만 빠져나올 뿐 `while`을 끝내지 못합니다. 그래서 아래의 `if (no == 9)`에서 별도로 `while`의 `break`를 실행합니다. ([무한루프 글]({{ site.baseurl }}{% post_url 2026-09-29-java-loop-infinite-do-while-compile-error %})에서 다룬 반복문 탈출 주제와 이어집니다.)
 
 호출 순서를 시퀀스 다이어그램으로 보면 책임 분담이 한눈에 보입니다.
 

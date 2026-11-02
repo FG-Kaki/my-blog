@@ -9,7 +9,7 @@ mermaid: true
 
 ## 들어가며 (Situation)
 
-[SELECT 편]({% post_url 2026-10-12-mysql-select-orderby-distinct-limit %})에서 "어떤 열을 가져올 것인가"를 봤다면, `where`는 "어떤 **행**을 가져올 것인가"를 정합니다. 수업 `03_where.sql`은 비교 연산자, `and`/`or`, `between`, `like`, `in`, `null` 처리를 한 파일에 담고 있습니다.
+[SELECT 편]({{ site.baseurl }}{% post_url 2026-10-12-mysql-select-orderby-distinct-limit %})에서 "어떤 열을 가져올 것인가"를 봤다면, `where`는 "어떤 **행**을 가져올 것인가"를 정합니다. 수업 `03_where.sql`은 비교 연산자, `and`/`or`, `between`, `like`, `in`, `null` 처리를 한 파일에 담고 있습니다.
 
 > 실제 서비스에서 겪은 문제가 아니라, 수업 실습을 정리한 글입니다. 쿼리는 수업에서 직접 실행하며 확인했고, 동작 설명은 MySQL 공식 문서로 보완했습니다.
 

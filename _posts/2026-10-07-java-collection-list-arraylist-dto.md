@@ -9,14 +9,14 @@ mermaid: true
 
 ## 들어가며 (Situation)
 
-[1편]({% post_url 2026-10-07-java-generic-basic-raw-type-wrapper %})의 제네릭은 사실 컬렉션을 쓰기 위한 준비였습니다. `List<String>`의 `<String>`이 바로 그 제네릭이기 때문입니다. 이 글은 `b_collection.a_list` 실습을 다룹니다.
+[1편]({{ site.baseurl }}{% post_url 2026-10-07-java-generic-basic-raw-type-wrapper %})의 제네릭은 사실 컬렉션을 쓰기 위한 준비였습니다. `List<String>`의 `<String>`이 바로 그 제네릭이기 때문입니다. 이 글은 `b_collection.a_list` 실습을 다룹니다.
 
 수업에서는 컬렉션을 "여러 데이터를 담고 관리하는 자료구조 도구 상자(`java.util`)"로 소개하고 세 종류로 나눴습니다.
 
 | 종류 | 순서 | 중복 | 비유 | 이 시리즈 |
 |------|------|------|------|-----------|
 | `List` | 있음 | 허용 | 출석부 | 3편 (이 글) |
-| `Set` | 없음 | 불허 | 구슬 주머니 | [4편]({% post_url 2026-10-07-java-collection-set-hashset-treeset %}) |
+| `Set` | 없음 | 불허 | 구슬 주머니 | [4편]({{ site.baseurl }}{% post_url 2026-10-07-java-collection-set-hashset-treeset %}) |
 | `Map` | 키-값 쌍 | 키 중복 불가 | 사전 | 이번 실습에는 없음 |
 
 > 실제 서비스에서 겪은 문제가 아니라, 개념 학습 중 정리한 내용입니다. 실행 결과는 JDK 21에서 직접 확인했습니다.

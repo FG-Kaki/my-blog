@@ -9,7 +9,7 @@ mermaid: true
 
 ## 들어가며 (Situation)
 
-[Set 편]({% post_url 2026-10-07-java-collection-set-hashset-treeset %})에서 "중복 없는 모음"을 다뤘다면, 이번 `b_collection.c_map` 실습의 `Map`은 **키-값(Key-Value) 한 쌍**으로 데이터를 저장합니다. 번호(인덱스)가 아니라 이름(키)으로 값을 바로 찾고 싶을 때 쓰는 자료구조입니다.
+[Set 편]({{ site.baseurl }}{% post_url 2026-10-07-java-collection-set-hashset-treeset %})에서 "중복 없는 모음"을 다뤘다면, 이번 `b_collection.c_map` 실습의 `Map`은 **키-값(Key-Value) 한 쌍**으로 데이터를 저장합니다. 번호(인덱스)가 아니라 이름(키)으로 값을 바로 찾고 싶을 때 쓰는 자료구조입니다.
 
 > 실제 서비스에서 겪은 문제가 아니라, 개념 학습 중 정리한 내용입니다. 실행 결과는 JDK 21에서 직접 확인했습니다.
 
@@ -118,7 +118,7 @@ Integer i = (Integer) r2.get(1);
 class java.lang.String cannot be cast to class java.lang.Integer
 ```
 
-컴파일러는 통과시키고 **실행 중에** `ClassCastException`이 납니다. 제네릭을 지정하면(`Map<Integer, String>`) 같은 실수가 컴파일 단계에서 걸립니다. [제네릭 기초 편]({% post_url 2026-10-07-java-generic-basic-raw-type-wrapper %})에서 본 내용이 `Map`에서도 그대로 적용됩니다.
+컴파일러는 통과시키고 **실행 중에** `ClassCastException`이 납니다. 제네릭을 지정하면(`Map<Integer, String>`) 같은 실수가 컴파일 단계에서 걸립니다. [제네릭 기초 편]({{ site.baseurl }}{% post_url 2026-10-07-java-generic-basic-raw-type-wrapper %})에서 본 내용이 `Map`에서도 그대로 적용됩니다.
 
 ### 5. 키-값 순회
 

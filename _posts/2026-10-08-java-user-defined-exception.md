@@ -9,7 +9,7 @@ mermaid: true
 
 ## 들어가며 (Situation)
 
-[앞 글]({% post_url 2026-10-08-java-exception-try-catch-throw %})에서는 JDK가 제공하는 예외를 `try-catch`로 처리했습니다. 이번 `a_exception.c_userexception` 실습은 **직접 예외 클래스를 만드는** 방법입니다. 상품 가격과 가진 돈을 받아 구매 가능 여부를 검사하는 작은 프로그램입니다.
+[앞 글]({{ site.baseurl }}{% post_url 2026-10-08-java-exception-try-catch-throw %})에서는 JDK가 제공하는 예외를 `try-catch`로 처리했습니다. 이번 `a_exception.c_userexception` 실습은 **직접 예외 클래스를 만드는** 방법입니다. 상품 가격과 가진 돈을 받아 구매 가능 여부를 검사하는 작은 프로그램입니다.
 
 > 실제 서비스에서 겪은 문제가 아니라, 개념 학습 중 정리한 내용입니다. 출력은 수업 클래스를 그대로 컴파일해 JDK 21에서 확인했습니다.
 

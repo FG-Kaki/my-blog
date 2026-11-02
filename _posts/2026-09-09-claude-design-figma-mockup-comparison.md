@@ -9,7 +9,7 @@ mermaid: true
 
 ## 들어가며 (Situation)
 
-**Yahoo_Prompt**(비전공자를 위한 규칙 기반 AI 프롬프트 자동 정리 도구) 프로젝트에서, 어제까지는 [카테고리별 스키마 설계]({% post_url 2026-09-07-rule-based-prompt-schema-design %})와 [기획 문서 5단계 완성]({% post_url 2026-09-08-agent-planning-tagging-workflow %})까지 끝냈습니다. 문제 정의부터 정책까지 텍스트로는 다 정리됐지만, 이걸 실제로 사용자가 보게 될 **화면**으로 옮기는 작업은 아직 손대지 않은 상태였습니다.
+**Yahoo_Prompt**(비전공자를 위한 규칙 기반 AI 프롬프트 자동 정리 도구) 프로젝트에서, 어제까지는 [카테고리별 스키마 설계]({{ site.baseurl }}{% post_url 2026-09-07-rule-based-prompt-schema-design %})와 [기획 문서 5단계 완성]({{ site.baseurl }}{% post_url 2026-09-08-agent-planning-tagging-workflow %})까지 끝냈습니다. 문제 정의부터 정책까지 텍스트로는 다 정리됐지만, 이걸 실제로 사용자가 보게 될 **화면**으로 옮기는 작업은 아직 손대지 않은 상태였습니다.
 
 오늘 수업은 그 공백을 메우는 시간이었습니다. **클로드 디자인(Claude Design)**과 **피그마(Figma)**로 웹페이지 구조를 잡고 목업을 만드는 실습 위주 수업으로, 지난 이틀간 텍스트로만 존재하던 기획을 처음으로 시각화해보는 자리였습니다.
 
